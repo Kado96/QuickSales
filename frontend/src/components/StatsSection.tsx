@@ -5,7 +5,8 @@ import { useSiteSettings } from "@/hooks/useApi";
 const StatsSection = () => {
   const { data: settings } = useSiteSettings();
   const { t, i18n } = useTranslation();
-  const lang = i18n.language || "fr";
+  // Normaliser la langue (ex: 'fr-FR' devient 'fr') pour correspondre aux clés de l'admin
+  const lang = (i18n.language || "fr").split('-')[0].toLowerCase();
 
   const stats = [
     {

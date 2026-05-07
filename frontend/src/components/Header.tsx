@@ -14,11 +14,8 @@ import { Button } from "@/components/ui/button";
 
 const navItems = [
   { label: "nav_home", href: "/" },
-  { label: "nav_diocese", href: "/diocese" },
-  { label: "nav_parishes", href: "/paroisses" },
-  { label: "nav_ministries", href: "/ministeres" },
+  { label: "nav_about", href: "/a-propos" },
   { label: "nav_news", href: "/actualites" },
-  { label: "nav_resources", href: "/ressources" },
   { label: "nav_contact", href: "/contact" },
 ];
 
@@ -33,6 +30,9 @@ const Header = () => {
   const { data: siteSettings } = useSiteSettings();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
+
+  // Normaliser la langue (ex: 'fr-FR' devient 'fr') pour correspondre aux clés de l'admin
+  const lang = (i18n.language || "fr").split('-')[0].toLowerCase();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -66,8 +66,8 @@ const Header = () => {
           <motion.div
             animate={{ 
               rotateY: [0, 360],
-              width: scrolled ? (window.innerWidth < 640 ? 64 : 80) : (window.innerWidth < 640 ? 96 : 128),
-              height: scrolled ? (window.innerWidth < 640 ? 64 : 80) : (window.innerWidth < 640 ? 96 : 128),
+              width: scrolled ? (window.innerWidth < 640 ? 56 : 72) : (window.innerWidth < 640 ? 80 : 100),
+              height: scrolled ? (window.innerWidth < 640 ? 56 : 72) : (window.innerWidth < 640 ? 80 : 100),
             }}
             transition={{ 
               rotateY: { repeat: Infinity, duration: 0.8, repeatDelay: 5, ease: "easeInOut" },
@@ -95,41 +95,64 @@ const Header = () => {
               }`}>
               {siteSettings?.site_name || "Diocese Makamba"}
             </span>
+            {siteSettings?.[`header_slogan_${lang}`] && (
+              <span className={`text-[10px] font-bold uppercase tracking-[0.2em] mt-1.5 transition-opacity duration-500 ${scrolled ? "text-slate-500" : "text-white/60"}`}>
+                {siteSettings[`header_slogan_${lang}`]}
+              </span>
+            )}
           </div>
         </Link>
         {/* 🧭 Premium Desktop Nav */}
         <nav className="hidden lg:flex items-center gap-2 xl:gap-4">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              to={item.href}
-              className="relative px-2 py-2 group/nav"
-            >
-              <motion.span
-                className={`relative z-10 text-[14px] xl:text-[15px] font-bold transition-all duration-300 flex items-center gap-1 ${location.pathname === item.href
-                  ? "text-primary"
-                  : scrolled
-                    ? "text-slate-600 group-hover/nav:text-slate-900"
-                    : "text-white/80 group-hover/nav:text-white"
-                  }`}
-                whileHover={{ y: -1 }}
+          {navItems.map((item) => {
+            // Déterminer le libellé par défaut selon la langue courante
+            const defaultLabels: Record<string, Record<string, string>> = {
+              fr: { nav_home: "Accueil", nav_about: "À Propos", nav_news: "Actualités", nav_contact: "Contact" },
+              en: { nav_home: "Home", nav_about: "About Us", nav_news: "News", nav_contact: "Contact" }
+            };
+
+            const currentLang = lang === 'en' ? 'en' : 'fr';
+            let label = defaultLabels[currentLang][item.label] || t(item.label);
+            
+            if (siteSettings) {
+              const dynamicLabel = siteSettings[`${item.label}_${lang}`];
+              if (dynamicLabel) label = dynamicLabel;
+            }
+
+            return (
+              <Link
+                key={item.href}
+                id={`nav-link-${item.label}`}
+                name={`nav_${item.label}`}
+                to={item.href}
+                className="relative px-2 py-2 group/nav"
               >
-                {t(item.label)}
-              </motion.span>
+                <motion.span
+                  className={`relative z-10 text-[14px] xl:text-[15px] font-bold transition-all duration-300 flex items-center gap-1 ${location.pathname === item.href
+                    ? "text-primary"
+                    : scrolled
+                      ? "text-slate-600 group-hover/nav:text-slate-900"
+                      : "text-white/80 group-hover/nav:text-white"
+                    }`}
+                  whileHover={{ y: -1 }}
+                >
+                  {label}
+                </motion.span>
 
-              {/* Hover Gloss Effect & Shadow */}
-              <div className={`absolute inset-0 rounded-xl transition-all duration-300 -z-0 opacity-0 group-hover/nav:opacity-100 group-hover/nav:shadow-[0_10px_20px_rgba(0,0,0,0.03)] ${scrolled ? "bg-slate-100/50" : "bg-white/10"
-                }`} />
+                {/* Hover Gloss Effect & Shadow */}
+                <div className={`absolute inset-0 rounded-xl transition-all duration-300 -z-0 opacity-0 group-hover/nav:opacity-100 group-hover/nav:shadow-[0_10px_20px_rgba(0,0,0,0.03)] ${scrolled ? "bg-slate-100/50" : "bg-white/10"
+                  }`} />
 
-              {/* Active Underline */}
-              {location.pathname === item.href && (
-                <motion.div
-                  layoutId="navActive"
-                  className="absolute bottom-0 left-5 right-5 h-1 bg-primary rounded-full shadow-[0_2px_10px_rgba(var(--primary),0.4)]"
-                />
-              )}
-            </Link>
-          ))}
+                {/* Active Underline */}
+                {location.pathname === item.href && (
+                  <motion.div
+                    layoutId="navActive"
+                    className="absolute bottom-0 left-5 right-5 h-1 bg-primary rounded-full shadow-[0_2px_10px_rgba(var(--primary),0.4)]"
+                  />
+                )}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* 🛠️ Actions Area */}
@@ -171,35 +194,37 @@ const Header = () => {
           </DropdownMenu>
 
           {/* Admin Button */}
-          <Link to="/admin/login">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button
-                variant="outline"
-                className={`h-11 rounded-2xl px-6 font-bold transition-all gap-2 shadow-sm ${scrolled
-                  ? "border-slate-200 text-slate-600 hover:text-primary hover:border-primary/30"
-                  : "border-white/30 text-white hover:bg-white/10 hover:border-white/50"
-                  }`}
+          {(siteSettings?.[`header_admin_btn_${lang}`] || siteSettings?.header_admin_btn_fr) && (
+            <Link to="/admin/login">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                <Lock className="h-4 w-4" />
-                {siteSettings?.[`header_admin_btn_${i18n.language}`] || siteSettings?.header_admin_btn_fr || t('nav_admin')}
-              </Button>
-            </motion.div>
-          </Link>
-
-
+                <Button
+                  variant="outline"
+                  className={`h-11 rounded-2xl px-6 font-bold transition-all gap-2 shadow-sm ${scrolled
+                    ? "border-slate-200 text-slate-600 hover:text-primary hover:border-primary/30"
+                    : "border-white/30 text-white hover:bg-white/10 hover:border-white/50"
+                    }`}
+                >
+                  <Lock className="h-4 w-4" />
+                  {siteSettings?.[`header_admin_btn_${lang}`] || siteSettings?.header_admin_btn_fr}
+                </Button>
+              </motion.div>
+            </Link>
+          )}
         </div>
 
         {/* 📱 Mobile Menu Interface */}
         <div className="lg:hidden flex items-center gap-3 sm:gap-4">
-          <Link
-            to="/admin/login"
-            className={`transition-colors duration-300 ${scrolled ? "text-slate-400" : "text-white/60"}`}
-          >
-            <Lock className="h-5 w-5" />
-          </Link>
+          {(siteSettings?.[`header_admin_btn_${lang}`] || siteSettings?.header_admin_btn_fr) && (
+            <Link
+              to="/admin/login"
+              className={`transition-colors duration-300 ${scrolled ? "text-slate-400" : "text-white/60"}`}
+            >
+              <Lock className="h-5 w-5" />
+            </Link>
+          )}
           <button
             onClick={() => setIsOpen(!isOpen)}
             className={`w-11 h-11 flex items-center justify-center rounded-xl transition-all duration-300 ${isOpen
@@ -249,26 +274,41 @@ const Header = () => {
               {/* Scrollable Links */}
               <div className="flex-1 overflow-y-auto py-4 px-4">
                 <nav className="flex flex-col gap-2">
-                  {navItems.map((item, idx) => (
-                    <motion.div
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: idx * 0.05 }}
-                      key={item.href}
-                    >
-                      <Link
-                        to={item.href}
-                        onClick={() => setIsOpen(false)}
-                        className={`flex items-center justify-between py-4 px-6 rounded-2xl text-lg font-heading font-black transition-all ${location.pathname === item.href
-                          ? "bg-primary/10 text-primary translate-x-2"
-                          : "text-slate-700 hover:bg-slate-50"
-                          }`}
-                      >
-                        {t(item.label)}
-                        {location.pathname === item.href && <div className="w-1.5 h-1.5 rounded-full bg-primary" />}
-                      </Link>
-                    </motion.div>
-                  ))}
+                    {navItems.map((item, idx) => {
+                      const defaultLabels: Record<string, Record<string, string>> = {
+                        fr: { nav_home: "Accueil", nav_about: "À Propos", nav_news: "Actualités", nav_contact: "Contact" },
+                        en: { nav_home: "Home", nav_about: "About Us", nav_news: "News", nav_contact: "Contact" }
+                      };
+                      const currentLang = lang === 'en' ? 'en' : 'fr';
+                      let label = defaultLabels[currentLang][item.label] || t(item.label);
+                      
+                      if (siteSettings) {
+                        const dynamicLabel = siteSettings[`${item.label}_${lang}`];
+                        if (dynamicLabel) label = dynamicLabel;
+                      }
+                      return (
+                        <motion.div
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: idx * 0.05 }}
+                          key={item.href}
+                        >
+                          <Link
+                            id={`nav-mobile-link-${item.label}`}
+                            name={`nav_mobile_${item.label}`}
+                            to={item.href}
+                            onClick={() => setIsOpen(false)}
+                            className={`flex items-center justify-between py-4 px-6 rounded-2xl text-lg font-heading font-black transition-all ${location.pathname === item.href
+                              ? "bg-primary/10 text-primary translate-x-2"
+                              : "text-slate-700 hover:bg-slate-50"
+                              }`}
+                          >
+                            {label}
+                            {location.pathname === item.href && <div className="w-1.5 h-1.5 rounded-full bg-primary" />}
+                          </Link>
+                        </motion.div>
+                      );
+                    })}
                 </nav>
               </div>
 

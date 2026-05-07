@@ -173,6 +173,19 @@ export interface DiocesePresentation {
     [key: string]: any; // Allow dynamic access like [field_${safeLang}]
 }
 
+export interface ParoissesPresentation {
+    id: number;
+    hero_image: string | null;
+    hero_image_display?: string | null;
+    hero_badge_fr: string;
+    hero_badge_en: string;
+    hero_title_fr: string;
+    hero_title_en: string;
+    hero_subtitle_fr: string;
+    hero_subtitle_en: string;
+    [key: string]: any;
+}
+
 export interface MinistryPage {
     id: number;
     hero_image: string | null;

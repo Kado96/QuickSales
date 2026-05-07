@@ -88,6 +88,8 @@ def serve_media_with_cors(request, path):
             response['Access-Control-Allow-Origin'] = origin if origin else '*'
         return response
 
+
+
 router = routers.DefaultRouter()
 
 urlpatterns = [

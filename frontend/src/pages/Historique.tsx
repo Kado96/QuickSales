@@ -6,12 +6,15 @@ import historyImage from "@/assets/history-church.jpg";
 import { useTimeline, useSiteSettings } from "@/hooks/useApi";
 import { Loader2 } from "lucide-react";
 
-const Historique = () => {
+  const { t, i18n } = useTranslation();
+  // Normaliser la langue (ex: 'fr-FR' devient 'fr') pour correspondre aux clés de l'admin
+  const lang = (i18n.language || "fr").split('-')[0].toLowerCase();
+  
   const { data: apiTimeline, isLoading: loadingTimeline } = useTimeline();
   const { data: settings, isLoading: loadingSettings } = useSiteSettings();
 
   const displayTimeline = apiTimeline && apiTimeline.length > 0
-    ? [...apiTimeline].sort((a, b) => a.order - b.order)
+    ? [...apiTimeline].filter(item => (item.language || 'fr').split('-')[0] === lang).sort((a, b) => a.order - b.order)
     : [];
 
   const isLoading = loadingTimeline || loadingSettings;
@@ -20,8 +23,8 @@ const Historique = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <PageHero
-        title="Historique"
-        subtitle={settings?.history_subtitle || "Des origines missionnaires à un diocèse enraciné au cœur de Makamba."}
+        title={t('diocese_history', "Historique")}
+        subtitle={settings?.[`history_subtitle_${lang}`] || settings?.history_subtitle_fr || "Des origines missionnaires à un diocèse enraciné au cœur de Makamba."}
       />
       <main>
         {isLoading ? (
@@ -45,7 +48,7 @@ const Historique = () => {
                   loading="lazy"
                 />
               </motion.div>
-
+ 
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -54,10 +57,10 @@ const Historique = () => {
                 className="prose max-w-none mb-16"
               >
                 <h2 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-4">
-                  {settings?.history_intro_title || "Les origines"}
+                  {settings?.[`history_intro_title_${lang}`] || settings?.history_intro_title_fr || "Les origines"}
                 </h2>
                 <p className="font-body text-muted-foreground text-lg leading-relaxed">
-                  {settings?.history_intro_text || "L'histoire de l'anglicanisme au Burundi remonte aux premières missions de la Church Missionary Society dans la région des Grands Lacs africains. Les missionnaires ont apporté non seulement la foi chrétienne, mais aussi des initiatives d'éducation et de santé qui ont marqué durablement les communautés locales."}
+                  {settings?.[`history_intro_text_${lang}`] || settings?.history_intro_text_fr || "L'histoire de l'anglicanisme au Burundi remonte aux premières missions de la Church Missionary Society dans la région des Grands Lacs africains. Les missionnaires ont apporté non seulement la foi chrétienne, mais aussi des initiatives d'éducation et de santé qui ont marqué durablement les communautés locales."}
                 </p>
                 {!settings?.history_intro_text && (
                   <p className="font-body text-muted-foreground text-lg leading-relaxed mt-4">

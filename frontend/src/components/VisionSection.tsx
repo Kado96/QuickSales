@@ -15,10 +15,11 @@ const iconMap: Record<string, any> = {
 const VisionSection = () => {
   const { data: settings } = useSiteSettings();
   const { t, i18n } = useTranslation();
-  const lang = i18n.language || "fr";
+  // Normaliser la langue (ex: 'fr-FR' devient 'fr') pour correspondre aux clés de l'admin
+  const lang = (i18n.language || "fr").split('-')[0].toLowerCase();
 
   const title = settings?.[`vision_title_${lang}`] || settings?.vision_title_fr || t('vision_title_default', "Notre vision et notre mission");
-  const description = settings?.[`vision_description_${lang}`] || settings?.vision_description_fr || t('vision_desc_default', "Fondé sur l'Évangile, le Diocèse de Makamba s'engage à servir Dieu et les communautés à travers trois piliers fondamentaux.");
+  const description = settings?.[`vision_description_${lang}`] || settings?.vision_description_fr || t('vision_desc_default', "Fondé sur l'Évangile, nous nous engageons à servir Dieu et les communautés à travers trois piliers fondamentaux.");
 
   const pillars = [
     {
@@ -61,7 +62,7 @@ const VisionSection = () => {
               </p>
 
               <a
-                href="/diocese"
+                href="/a-propos"
                 className="inline-flex items-center justify-center gap-2 bg-secondary text-secondary-foreground font-heading font-bold uppercase tracking-wider text-xs md:text-sm px-6 py-3 md:px-8 md:py-3.5 rounded-sm hover:bg-secondary/90 transition-all shadow-md hover:shadow-lg"
               >
                 {t('hero_cta_learn', 'Découvrir le diocèse')}

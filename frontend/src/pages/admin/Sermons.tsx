@@ -278,11 +278,13 @@ const AdminSermons = () => {
                             <Table>
                                 <TableHeader className="bg-slate-50/50">
                                     <TableRow className="hover:bg-transparent border-slate-100">
-                                        <TableHead className="w-16 h-14 font-bold text-slate-400 uppercase tracking-wider text-[10px]">{t('admin_photo_label', "Aperçu")}</TableHead>
-                                        <TableHead className="font-bold text-slate-400 uppercase tracking-wider text-[10px]">{t('admin_title_label', "Titre")}</TableHead>
-                                        <TableHead className="font-bold text-slate-400 uppercase tracking-wider text-[10px]">{t('admin_category_label', "Type")}</TableHead>
-                                        <TableHead className="font-bold text-slate-400 uppercase tracking-wider text-[10px]">{t('admin_date_label', "Date")}</TableHead>
-                                        <TableHead className="w-20 text-right"></TableHead>
+                                        <TableHead className="pl-8 py-4 font-bold text-slate-400 uppercase tracking-wider text-[10px]">{t('admin_title_label', "Ressource")}</TableHead>
+                                        <TableHead className="py-4 font-bold text-slate-400 uppercase tracking-wider text-[10px]">{t('sermons_preacher_label', "Prédicateur")}</TableHead>
+                                        <TableHead className="py-4 font-bold text-slate-400 uppercase tracking-wider text-[10px] text-center">{t('admin_lang_label', "Langue")}</TableHead>
+                                        <TableHead className="py-4 font-bold text-slate-400 uppercase tracking-wider text-[10px] text-center">{t('admin_status_label', "Statut")}</TableHead>
+                                        <TableHead className="py-4 font-bold text-slate-400 uppercase tracking-wider text-[10px] text-center">{t('admin_views_label', "Vues")}</TableHead>
+                                        <TableHead className="py-4 font-bold text-slate-400 uppercase tracking-wider text-[10px] text-center">{t('admin_date_label', "Date")}</TableHead>
+                                        <TableHead className="w-20 text-right pr-8 py-4"></TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>

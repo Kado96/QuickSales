@@ -7,6 +7,10 @@ import { Loader2 } from "lucide-react";
 import { useSiteSettings, useTeamMembers } from "@/hooks/useApi";
 
 const Leadership = () => {
+  const { t, i18n } = useTranslation();
+  // Normaliser la langue (ex: 'fr-FR' devient 'fr') pour correspondre aux clés de l'admin
+  const lang = (i18n.language || "fr").split('-')[0].toLowerCase();
+
   const { data: settings, isLoading: loadingSettings } = useSiteSettings();
   const { data: apiTeam, isLoading: loadingTeam } = useTeamMembers();
 
@@ -20,8 +24,8 @@ const Leadership = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <PageHero
-        title="Leadership"
-        subtitle="L'évêque et l'équipe diocésaine au service de la communauté anglicane de Makamba."
+        title={t("nav_leadership", "Leadership")}
+        subtitle={settings?.[`hero_subtitle_${lang}`] || t("leadership_hero_subtitle", "L'évêque et l'équipe diocésaine au service de la communauté anglicane de Makamba.")}
       />
       <main>
         {/* Bishop */}
@@ -49,27 +53,27 @@ const Leadership = () => {
                 </div>
                 <div>
                   <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary font-body text-xs font-bold uppercase tracking-wider mb-3">
-                    Évêque diocésain
+                    {t("bishop_label", "Évêque diocésain")}
                   </span>
                   <h2 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-2">
                     {settings?.quote_author_name || "Rt. Rev. Samuel Nduwayo"}
                   </h2>
                   <p className="font-body text-muted-foreground text-sm mb-4">
-                    {settings?.quote_author_subtitle || "Évêque du Diocèse de Makamba depuis 2009"}
+                    {settings?.[`quote_author_subtitle_${lang}`] || settings?.quote_author_subtitle || t("bishop_subtitle_default", "Évêque du Diocèse de Makamba depuis 2009")}
                   </p>
                   <div className="space-y-4">
                     <p className="font-body text-foreground leading-relaxed">
-                      {settings?.bishop_bio_p1 || "Ordonné prêtre en 1995, Mgr Samuel Nduwayo a consacré sa vie au service de l'Église et des communautés du Burundi. Sous sa direction, le diocèse a connu une croissance remarquable, passant de quelques paroisses à un réseau de 20 communautés paroissiales actives."}
+                      {settings?.[`bishop_bio_p1_${lang}`] || settings?.bishop_bio_p1 || t("bishop_bio_p1_default", "Ordonné prêtre en 1995, Mgr Samuel Nduwayo a consacré sa vie au service de l'Église...")}
                     </p>
                     <p className="font-body text-foreground leading-relaxed">
-                      {settings?.bishop_bio_p2 || "Sa vision d'une Église engagée socialement a permis le développement de projets d'éducation, de santé et de développement communautaire qui transforment la vie de milliers de familles dans la province de Makamba."}
+                      {settings?.[`bishop_bio_p2_${lang}`] || settings?.bishop_bio_p2 || t("bishop_bio_p2_default", "Sa vision d'une Église engagée socialement...")}
                     </p>
                   </div>
 
                   {/* Message */}
                   <div className="mt-6 p-5 bg-muted rounded-lg border-l-4 border-primary">
                     <p className="font-heading text-base italic text-foreground leading-relaxed">
-                      « {settings?.quote_text || "Notre appel est de servir avec amour et humilité, en portant la lumière de l'Évangile dans chaque foyer de Makamba."} »
+                      « {settings?.[`quote_text_${lang}`] || settings?.quote_text || t("bishop_quote_default", "Notre appel est de servir avec amour et humilité...")} »
                     </p>
                     <p className="font-body text-muted-foreground text-sm mt-2">
                       — {settings?.quote_author_name || "Rt. Rev. Samuel Nduwayo"}
@@ -92,17 +96,17 @@ const Leadership = () => {
                 className="text-center mb-12"
               >
                 <h2 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-3">
-                  {settings?.team_title || "L'équipe diocésaine"}
+                  {settings?.[`team_title_${lang}`] || settings?.team_title || t("team_title_default", "L'équipe diocésaine")}
                 </h2>
                 <p className="font-body text-muted-foreground text-lg max-w-xl mx-auto">
-                  {settings?.team_description || "Les responsables qui accompagnent la vie et la mission du diocèse au quotidien."}
+                  {settings?.[`team_description_${lang}`] || settings?.team_description || t("team_desc_default", "Les responsables qui accompagnent la vie et la mission du diocèse au quotidien.")}
                 </p>
               </motion.div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {displayTeam.length === 0 ? (
                   <div className="col-span-full text-center py-10">
-                    <p className="text-muted-foreground">Aucun membre de l'équipe enregistré.</p>
+                    <p className="text-muted-foreground">{t("team_empty", "Aucun membre de l'équipe enregistré.")}</p>
                   </div>
                 ) : displayTeam.map((member, index) => (
                   <motion.div
@@ -124,10 +128,12 @@ const Leadership = () => {
                     )}
                     <div className="p-6">
                       <span className="inline-block px-3 py-1 rounded-full bg-accent/10 text-accent font-body text-xs font-semibold mb-3">
-                        {member.role}
+                        {member[`role_${lang}`] || member.role_fr || member.role}
                       </span>
                       <h3 className="font-heading text-lg font-bold text-foreground mb-2">{member.name}</h3>
-                      <p className="font-body text-muted-foreground text-sm leading-relaxed">{member.description}</p>
+                      <p className="font-body text-muted-foreground text-sm leading-relaxed">
+                        {member[`description_${lang}`] || member.description_fr || member.description}
+                      </p>
                     </div>
                   </motion.div>
                 ))}

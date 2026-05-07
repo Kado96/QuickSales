@@ -1,16 +1,18 @@
 import { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useSearchParams } from "react-router-dom";
 import {
     Settings,
     Save,
     Loader2,
     Globe,
     Mail,
-    Activity,
     Fingerprint,
-    MapPin
+    MapPin,
+    Palette,
+    BarChart3,
+    Users
 } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
 import AdminLayout from "@/components/admin/AdminLayout";
 import {
     Card,
@@ -28,9 +30,9 @@ import { api } from "@/lib/api";
 import LanguageTabContent from "./components/LanguageTabContent";
 import StatsTabContent from "./components/StatsTabContent";
 import ContactTabContent from "./components/ContactTabContent";
+import DesignTabContent from "./components/DesignTabContent";
 import { useTranslation } from "react-i18next";
 import IdentityTabContent from "./components/IdentityTabContent";
-import ParishesTabContent from "./components/ParishesTabContent";
 
 const AdminSettings = () => {
     const { t } = useTranslation();
@@ -128,6 +130,8 @@ const AdminSettings = () => {
                     </div>
                     <Button
                         type="submit"
+                        id="btn-save-settings"
+                        name="save_settings"
                         disabled={updateMutation.isPending}
                         className="bg-primary hover:bg-primary/90 text-white gap-2 h-12 px-8 rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-95"
                     >
@@ -154,15 +158,18 @@ const AdminSettings = () => {
                                         <TabsTrigger value="identity" className="rounded-lg font-bold">
                                             <Fingerprint className="h-4 w-4 mr-2 text-indigo-500" /> {t('admin_identity', 'Identité')}
                                         </TabsTrigger>
-                                        <TabsTrigger value="stats" className="rounded-lg font-bold">
-                                            <Activity className="h-4 w-4 mr-2" /> {t('admin_stats', 'Statistiques')}
+                                        <TabsTrigger value="design" className="rounded-lg font-bold bg-rose-50 text-rose-700 data-[state=active]:bg-rose-600 data-[state=active]:text-white gap-2 py-2 px-4 shadow-sm border border-rose-100">
+                                            <Palette className="h-4 w-4" /> {t('admin_tab_design', "Design & Alertes")}
                                         </TabsTrigger>
-                                        <TabsTrigger value="parishes" className="rounded-lg font-bold bg-emerald-50 text-emerald-700 data-[state=active]:bg-emerald-600 data-[state=active]:text-white">
-                                            <MapPin className="h-4 w-4 mr-2" /> {t('admin_parishes', 'Paroisses')}
+                                        <TabsTrigger value="stats" className="rounded-lg font-bold bg-amber-50 text-amber-700 data-[state=active]:bg-amber-600 data-[state=active]:text-white gap-2 py-2 px-4 shadow-sm border border-amber-100">
+                                            <BarChart3 className="h-4 w-4" /> {t('admin_tab_stats', "Statistiques")}
                                         </TabsTrigger>
-                                        <TabsTrigger value="contact" className="rounded-lg font-bold ml-auto bg-blue-50 text-blue-700 data-[state=active]:bg-blue-600 data-[state=active]:text-white">
-                                            <Mail className="h-4 w-4 mr-2" /> {t('admin_contact_social', 'Contact & Social')}
+                                        <TabsTrigger value="contact" className="rounded-lg font-bold bg-emerald-50 text-emerald-700 data-[state=active]:bg-emerald-600 data-[state=active]:text-white gap-2 py-2 px-4 shadow-sm border border-emerald-100">
+                                            <Globe className="h-4 w-4" /> {t('admin_tab_contact', "Contact & Réseaux")}
                                         </TabsTrigger>
+                                        <Link to="/admin/users" className="rounded-lg font-bold bg-teal-50 text-teal-700 hover:bg-teal-100 gap-2 py-2 px-4 shadow-sm border border-teal-100 flex items-center transition-colors">
+                                            <Users className="h-4 w-4" /> {t('admin_users_management', "Utilisateurs")}
+                                        </Link>
                                     </TabsList>
 
                                     {["fr", "en"].map((lang) => (
@@ -171,6 +178,10 @@ const AdminSettings = () => {
                                         </TabsContent>
                                     ))}
 
+                                    <TabsContent value="design" className="mt-0">
+                                        <DesignTabContent settings={settings} />
+                                    </TabsContent>
+                                    
                                     <TabsContent value="stats" className="mt-0">
                                         <StatsTabContent settings={settings} />
                                     </TabsContent>
@@ -183,9 +194,6 @@ const AdminSettings = () => {
                                         <IdentityTabContent settings={settings} />
                                     </TabsContent>
 
-                                    <TabsContent value="parishes" className="mt-0">
-                                        <ParishesTabContent settings={settings} />
-                                    </TabsContent>
                                 </Tabs>
                             </CardContent>
                         </Card>

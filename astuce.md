@@ -233,4 +233,37 @@ Django-storages construit l'URL en faisant `DOMAINE + LOCATION + NOM`. En mettan
 
 ---
 
+## ⚙️ Centralisation des Paramètres Globaux (SiteSettings)
+
+Depuis la refonte de Mai 2026, l'administration est centralisée autour d'un **hub unique** dans l'onglet **Paramètres**. Voici les champs techniques à connaître pour la maintenance ou la migration.
+
+### 1. Identité & Branding
+Ces champs contrôlent le nom et le slogan partout sur le site (Header/Footer).
+- **ID/Name** : `site_name` ➔ Nom principal du site (ex: "Diocèse de Makamba").
+- **ID/Name** : `footer_brand_name` ➔ Nom affiché dans la signature du footer.
+- **ID/Name** : `footer_brand_subtitle` ➔ Slogan de marque du footer.
+
+### 2. Design & Couleurs Dynamiques
+Le site injecte ces couleurs dynamiquement via des variables CSS (`--primary`, etc.) dans `App.tsx`.
+- **ID/Name** : `primary_color` (ex: `#1D8B5D`) ➔ Couleur principale (Boutons, icônes actives).
+- **ID/Name** : `secondary_color` (ex: `#19324D`) ➔ Couleur secondaire (Sections sombres).
+- **ID/Name** : `accent_color` (ex: `#F59E0B`) ➔ Couleur d'accentuation (Badges, surbrillance).
+
+### 3. Flash Info (Ticker "France 24")
+Le bandeau défilant en bas de l'écran est géré par ces champs :
+- **ID/Name** : `info_message_active` (Boolean) ➔ Active/Désactive l'affichage.
+- **ID/Name** : `info_message_text_fr` ➔ Texte en Français.
+- **ID/Name** : `info_message_text_en` ➔ Texte en Anglais.
+- **ID/Name** : `info_message_link` ➔ Lien de redirection au clic sur le bandeau.
+
+### 4. Statistiques Globales
+Situées auparavant sur l'accueil, elles sont maintenant dans le hub central.
+- **IDs** : `stat_years_value`, `stat_emissions_value`, `stat_audience_value`, `stat_languages_value`.
+- **Labels** : Les labels correspondants (ex: `stat_years_label_fr`) sont également modifiables.
+
+### 💡 Note pour la Migration
+Le modèle `SiteSettings` est un **Singleton** (`pk=1`). Si vous videz la base de données, assurez-vous de recréer cette instance unique via l'admin ou le script `populate_defaults.py` pour que le site retrouve son identité.
+
+---
+
 

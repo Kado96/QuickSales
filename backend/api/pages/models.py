@@ -192,3 +192,45 @@ class DiocesePresentation(models.Model):
         if self.__class__.objects.count() and not self.pk:
             self.pk = self.__class__.objects.first().pk
         super().save(*args, **kwargs)
+
+class ParoissesPresentation(models.Model):
+    hero_image = models.ImageField(upload_to='paroisses/', blank=True, null=True, verbose_name="Image Hero (Bandeau)")
+    
+    # French
+    hero_badge_fr = models.CharField(max_length=255, verbose_name="Badge Hero (FR)", blank=True, null=True, default="PRÉSENCE COMMUNAUTAIRE")
+    hero_title_fr = models.CharField(max_length=255, verbose_name="Titre Hero (FR)", blank=True, null=True, default="Nos Paroisses")
+    hero_subtitle_fr = models.TextField(verbose_name="Sous-titre Héro (FR)", blank=True, null=True, default="Découvrez les paroisses du diocèse de Makamba. De véritables foyers spirituels, au cœur de chaque communauté, pour partager la foi et grandir ensemble.")
+    
+    # English
+    hero_badge_en = models.CharField(max_length=255, verbose_name="Badge Hero (EN)", blank=True, null=True, default="COMMUNITY PRESENCE")
+    hero_title_en = models.CharField(max_length=255, verbose_name="Titre Hero (EN)", blank=True, null=True, default="Our Parishes")
+    hero_subtitle_en = models.TextField(verbose_name="Sous-titre Héro (EN)", blank=True, null=True, default="Discover the parishes of the Diocese of Makamba. True spiritual homes at the heart of every community.")
+
+    class Meta:
+        verbose_name = "Présentation de la page Paroisses"
+        verbose_name_plural = "Présentation de la page Paroisses"
+
+    def __str__(self):
+        return "Présentation de la page Paroisses"
+
+    def save(self, *args, **kwargs):
+        if self.__class__.objects.count() and not self.pk:
+            self.pk = self.__class__.objects.first().pk
+        super().save(*args, **kwargs)
+
+class ContactMessage(models.Model):
+    name = models.CharField(max_length=255, verbose_name="Nom complet")
+    email = models.EmailField(verbose_name="Email")
+    subject = models.CharField(max_length=255, verbose_name="Sujet")
+    message = models.TextField(verbose_name="Message")
+    is_read = models.BooleanField(default=False, verbose_name="Lu")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date d'envoi")
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Message de Contact"
+        verbose_name_plural = "Messages de Contact"
+
+    def __str__(self):
+        return f"Message de {self.name} - {self.subject}"
+

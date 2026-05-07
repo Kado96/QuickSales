@@ -9,6 +9,14 @@ class SiteSettings(models.Model):
     site_name = models.CharField(max_length=200, default="Diocese Makamba")
     description = models.TextField(blank=True, default="Site officiel du Diocese Makamba Connect")
     
+    # Message d'information (Bandeau type France 24)
+    info_message_text_fr = models.TextField(blank=True, default="", help_text="Texte du message d'information (FR)")
+    info_message_text_en = models.TextField(blank=True, default="", help_text="Texte du message d'information (EN)")
+    info_badge_text_fr = models.CharField(max_length=50, blank=True, default="INFO SHALOM", help_text="Texte du badge (FR)")
+    info_badge_text_en = models.CharField(max_length=50, blank=True, default="INFO SHALOM", help_text="Texte du badge (EN)")
+    info_message_link = models.CharField(max_length=255, blank=True, default="", help_text="Lien optionnel pour le message d'info")
+    info_message_active = models.BooleanField(default=False, help_text="Activer/Désactiver le bandeau d'information")
+    
     DEFAULT_LANGUAGE_CHOICES = [
         ('fr', 'Français'),
         ('en', 'English'),
@@ -71,14 +79,27 @@ class SiteSettings(models.Model):
     instagram_url = models.URLField(blank=True)
     twitter_url = models.URLField(blank=True)
     whatsapp_url = models.URLField(blank=True)
+
+    # Navigation Labels (multilingue)
+    # Français
+    nav_home_fr = models.CharField(max_length=100, blank=True, default="Accueil")
+    nav_about_fr = models.CharField(max_length=100, blank=True, default="À Propos")
+    nav_news_fr = models.CharField(max_length=100, blank=True, default="Actualités")
+    nav_contact_fr = models.CharField(max_length=100, blank=True, default="Contact")
+    
+    # English
+    nav_home_en = models.CharField(max_length=100, blank=True, default="Home")
+    nav_about_en = models.CharField(max_length=100, blank=True, default="About Us")
+    nav_news_en = models.CharField(max_length=100, blank=True, default="News")
+    nav_contact_en = models.CharField(max_length=100, blank=True, default="Contact")
     
     # Contenu pages (par langue)
     # Français
     hero_badge_fr = models.CharField(max_length=150, blank=True, default="ÉGLISE ANGLICANE DU BURUNDI")
-    hero_title_fr = models.CharField(max_length=200, blank=True, default="Diocèse de Makamba")
+    hero_title_fr = models.CharField(max_length=255, default="À propos de nous", verbose_name="Titre Hero (FR)")
     hero_subtitle_fr = models.TextField(blank=True, default="Servir Dieu et notre prochain au cœur de Makamba. Annoncer l'Évangile, bâtir la paix, promouvoir l'éducation et la solidarité.")
     hero_btn1_text_fr = models.CharField(max_length=100, blank=True, default="Gundua diyosisi")
-    hero_btn1_link_fr = models.CharField(max_length=255, blank=True, default="/diocese")
+    hero_btn1_link_fr = models.CharField(max_length=255, blank=True, default="/a-propos")
     hero_btn2_text_fr = models.CharField(max_length=100, blank=True, default="Maisha ya diyosisi")
     hero_btn2_link_fr = models.CharField(max_length=255, blank=True, default="/ministeres")
     
@@ -92,10 +113,10 @@ class SiteSettings(models.Model):
 
     # English
     hero_badge_en = models.CharField(max_length=150, blank=True, default="ANGLICAN CHURCH OF BURUNDI")
-    hero_title_en = models.CharField(max_length=200, blank=True, default="Makamba Diocese")
+    hero_title_en = models.CharField(max_length=255, default="About Us", verbose_name="Titre Hero (EN)")
     hero_subtitle_en = models.TextField(blank=True, default="Serving God and our neighbor in the heart of Makamba. Proclaiming the Gospel, building peace, promoting education and solidarity.")
     hero_btn1_text_en = models.CharField(max_length=100, blank=True, default="Discover the diocese")
-    hero_btn1_link_en = models.CharField(max_length=255, blank=True, default="/diocese")
+    hero_btn1_link_en = models.CharField(max_length=255, blank=True, default="/a-propos")
     hero_btn2_text_en = models.CharField(max_length=100, blank=True, default="Diocese life")
     hero_btn2_link_en = models.CharField(max_length=255, blank=True, default="/ministeres")
     
@@ -133,6 +154,28 @@ class SiteSettings(models.Model):
     vision_text_fr = models.TextField(blank=True, default="« Être une Église vivante, ancrée dans l'Évangile... »")
     mission_intro_fr = models.TextField(blank=True, default="Le diocèse de Makamba s'engage à travers six axes missionnels complémentaires :")
     
+    # Nouveaux champs pour DiocesePresentationTab & VisionIntroManager (FR)
+    organization_title_fr = models.CharField(max_length=200, blank=True, default="")
+    organization_subtitle_fr = models.CharField(max_length=200, blank=True, default="")
+    organization_text_fr = models.TextField(blank=True, default="")
+    history_title_fr = models.CharField(max_length=200, blank=True, default="")
+    history_text_fr = models.TextField(blank=True, default="")
+    bishop_name = models.CharField(max_length=200, blank=True, default="")
+    bishop_title_fr = models.CharField(max_length=200, blank=True, default="")
+    bishop_message_fr = models.TextField(blank=True, default="")
+    vision_badge_fr = models.CharField(max_length=100, blank=True, default="")
+    mission_badge_fr = models.CharField(max_length=100, blank=True, default="")
+    mission_title_fr = models.CharField(max_length=200, blank=True, default="")
+    mission_description_fr = models.TextField(blank=True, default="")
+    values_badge_fr = models.CharField(max_length=100, blank=True, default="")
+    values_title_fr = models.CharField(max_length=200, blank=True, default="")
+    values_description_fr = models.TextField(blank=True, default="")
+    team_badge_fr = models.CharField(max_length=100, blank=True, default="")
+    nav_history_fr = models.CharField(max_length=100, blank=True, default="")
+    nav_bishop_fr = models.CharField(max_length=100, blank=True, default="")
+    nav_vision_fr = models.CharField(max_length=100, blank=True, default="")
+    nav_team_fr = models.CharField(max_length=100, blank=True, default="")
+    
     # English
     diocese_subtitle_en = models.TextField(blank=True, default="The Anglican Church of the Diocese of Makamba, founded in 2009, is a spiritual and social pillar of the Makamba province in Burundi.")
     history_subtitle_en = models.TextField(blank=True, default="From missionary origins to a diocese rooted in the heart of Makamba.")
@@ -141,6 +184,27 @@ class SiteSettings(models.Model):
     vision_subtitle_en = models.TextField(blank=True, default="Our spiritual compass and our concrete commitment to serving the communities of Makamba.")
     vision_text_en = models.TextField(blank=True, default="'Being a living Church, anchored in the Gospel...'")
     mission_intro_en = models.TextField(blank=True, default="The Diocese of Makamba is committed through six complementary missional axes:")
+    
+    # Nouveaux champs pour DiocesePresentationTab & VisionIntroManager (EN)
+    organization_title_en = models.CharField(max_length=200, blank=True, default="")
+    organization_subtitle_en = models.CharField(max_length=200, blank=True, default="")
+    organization_text_en = models.TextField(blank=True, default="")
+    history_title_en = models.CharField(max_length=200, blank=True, default="")
+    history_text_en = models.TextField(blank=True, default="")
+    bishop_title_en = models.CharField(max_length=200, blank=True, default="")
+    bishop_message_en = models.TextField(blank=True, default="")
+    vision_badge_en = models.CharField(max_length=100, blank=True, default="")
+    mission_badge_en = models.CharField(max_length=100, blank=True, default="")
+    mission_title_en = models.CharField(max_length=200, blank=True, default="")
+    mission_description_en = models.TextField(blank=True, default="")
+    values_badge_en = models.CharField(max_length=100, blank=True, default="")
+    values_title_en = models.CharField(max_length=200, blank=True, default="")
+    values_description_en = models.TextField(blank=True, default="")
+    team_badge_en = models.CharField(max_length=100, blank=True, default="")
+    nav_history_en = models.CharField(max_length=100, blank=True, default="")
+    nav_bishop_en = models.CharField(max_length=100, blank=True, default="")
+    nav_vision_en = models.CharField(max_length=100, blank=True, default="")
+    nav_team_en = models.CharField(max_length=100, blank=True, default="")
     
     # Leadership
     bishop_bio_p1_fr = models.TextField(blank=True, default="Ordonné prêtre en 1995, Mgr Samuel Nduwayo a consacré sa vie au service de l'Église...")
@@ -323,6 +387,13 @@ class SiteSettings(models.Model):
     engage_bg_image = models.ImageField(upload_to='settings/', blank=True, null=True, help_text="Image de fond section Engagement")
     stories_bg_image = models.ImageField(upload_to='settings/', blank=True, null=True, help_text="Image de fond section Actualités")
     parishes_bg_image = models.ImageField(upload_to='settings/', blank=True, null=True, help_text="Image de fond section Paroisses")
+    
+    # Nouveaux champs d'images pour VisionIntroManager & DiocesePresentationTab
+    history_image = models.ImageField(upload_to='settings/', blank=True, null=True)
+    bishop_photo = models.ImageField(upload_to='settings/', blank=True, null=True)
+    vision_image = models.ImageField(upload_to='settings/', blank=True, null=True)
+    mission_image = models.ImageField(upload_to='settings/', blank=True, null=True)
+    values_image = models.ImageField(upload_to='settings/', blank=True, null=True)
 
     # Footer brand
     footer_brand_name = models.CharField(max_length=200, blank=True, default="Diocèse de Makamba")
@@ -356,20 +427,20 @@ class SiteSettings(models.Model):
     # Personnalisation des titres de pages (multilingue)
     # Français
     page_courses_title_fr = models.CharField(max_length=200, blank=True, default="Toutes les émissions", help_text="Titre de la page des émissions")
-    page_about_title_fr = models.CharField(max_length=200, blank=True, default="À propos", help_text="Titre de la page À propos")
+    page_about_title_fr = models.CharField(max_length=255, default="À propos de nous", verbose_name="Titre Page À Propos (FR)")
     page_contact_title_fr = models.CharField(max_length=200, blank=True, default="Contactez-nous", help_text="Titre de la page Contact")
     # English
     page_courses_title_en = models.CharField(max_length=200, blank=True, default="All Courses")
-    page_about_title_en = models.CharField(max_length=200, blank=True, default="About")
+    page_about_title_en = models.CharField(max_length=255, default="About Us", verbose_name="Titre Page À Propos (EN)")
     page_contact_title_en = models.CharField(max_length=200, blank=True, default="Contact Us")
     
     # Personnalisation des styles
     # Couleurs
-    primary_color = models.CharField(max_length=7, blank=True, default="#3B82F6", help_text="Couleur principale (hex: #RRGGBB)")
-    secondary_color = models.CharField(max_length=7, blank=True, default="#10B981", help_text="Couleur secondaire")
+    primary_color = models.CharField(max_length=20, default="#1D8B5D", help_text="Couleur principale (hex: #RRGGBB)")
+    secondary_color = models.CharField(max_length=20, default="#19324D", help_text="Couleur secondaire")
     text_color = models.CharField(max_length=7, blank=True, default="#1F2937", help_text="Couleur du texte principal")
     background_color = models.CharField(max_length=7, blank=True, default="#FFFFFF", help_text="Couleur de fond")
-    accent_color = models.CharField(max_length=7, blank=True, default="#8B5CF6", help_text="Couleur d'accentuation")
+    accent_color = models.CharField(max_length=20, default="#F59E0B", help_text="Couleur d'accentuation")
     
     # Polices (fonts)
     heading_font = models.CharField(max_length=100, blank=True, default="Playfair Display", help_text="Police pour les titres")

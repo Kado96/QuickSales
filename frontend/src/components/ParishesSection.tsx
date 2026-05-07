@@ -8,7 +8,8 @@ const ParishesSection = () => {
   const { data: settings } = useSiteSettings();
   const { data: parishesData, isLoading } = useParishes();
   const { t, i18n } = useTranslation();
-  const lang = i18n.language || "fr";
+  // Normaliser la langue (ex: 'fr-FR' devient 'fr') pour correspondre aux clés de l'admin
+  const lang = (i18n.language || "fr").split('-')[0].toLowerCase();
 
   const parishes = parishesData?.slice(0, 8).map(p => p.name) || [];
 

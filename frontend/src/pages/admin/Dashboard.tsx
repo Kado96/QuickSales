@@ -14,7 +14,9 @@ import {
     Edit3,
     HelpCircle,
     BarChart3,
-    Megaphone
+    Megaphone,
+    Settings,
+    Home
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -30,7 +32,6 @@ const Dashboard = () => {
     const user = JSON.parse(localStorage.getItem("user") || '{"username": "Admin"}');
     const stats = [
         { label: t('stats_total_views', "Vues Totales"), value: "125.4K", change: "+12%", icon: Eye, color: "text-blue-500", bg: "bg-blue-50" },
-        { label: t('stats_active_sermons', "Sermons Actifs"), value: "48", change: "+4", icon: Monitor, color: "text-emerald-500", bg: "bg-emerald-50" },
         { label: t('nav_news', "Annonces"), value: "3", change: "0", icon: Megaphone, color: "text-orange-500", bg: "bg-orange-50" },
         { label: t('stats_media_impact', "Impact Médias"), value: "89%", change: "+5%", icon: TrendingUp, color: "text-purple-500", bg: "bg-purple-50" },
     ];
@@ -39,8 +40,9 @@ const Dashboard = () => {
     const isAdmin = userRole === 'admin' || user.is_superuser;
 
     const quickActions = [
-        { label: t('admin_new_sermon', "Nouveau Sermon"), icon: Plus, color: "bg-blue-600", hover: "hover:bg-blue-700", path: "/admin/sermons" },
-        ...(isAdmin ? [{ label: t('admin_add_pastor', "Ajouter Pasteur"), icon: Users, color: "bg-emerald-600", hover: "hover:bg-emerald-700", path: "/admin/users/add" }] : []),
+        { label: t('admin_homepage', "Accueil"), icon: Home, color: "bg-blue-600", hover: "hover:bg-blue-700", path: "/admin/homepage" },
+        { label: t('admin_about_us', "À Propos"), icon: Users, color: "bg-violet-600", hover: "hover:bg-violet-700", path: "/admin/a-propos" },
+        { label: t('admin_settings', "Paramètres"), icon: Settings, color: "bg-slate-600", hover: "hover:bg-slate-700", path: "/admin/settings" },
         { label: t('admin_view_site', "Voir le Site"), icon: ExternalLink, iconSize: 20, color: "bg-orange-500", hover: "hover:bg-orange-600", path: "/", external: true },
     ];
 

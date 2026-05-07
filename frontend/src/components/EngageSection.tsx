@@ -17,7 +17,8 @@ const iconMap: Record<string, any> = {
 const EngageSection = () => {
   const { data: settings } = useSiteSettings();
   const { t, i18n } = useTranslation();
-  const lang = i18n.language || "fr";
+  // Normaliser la langue (ex: 'fr-FR' devient 'fr') pour correspondre aux clés de l'admin
+  const lang = (i18n.language || "fr").split('-')[0].toLowerCase();
   const title = settings?.[`engage_title_${lang}`] || settings?.engage_title_fr || t('nav_engage', "S'engager avec le diocèse");
   const subtitle = settings?.[`engage_description_${lang}`] || settings?.engage_description_fr || t('vision_subtitle_default', "Chacun a un rôle à jouer dans la mission de notre Église");
 

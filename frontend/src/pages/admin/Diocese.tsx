@@ -62,9 +62,9 @@ const AdminDiocese = () => {
     });
 
     const { data: team, isLoading: loadingTeam } = useQuery({
-        queryKey: ["admin-team", activeLang],
+        queryKey: ["admin-team"],
         queryFn: async () => {
-            const res = await api.get(`/api/pages/team/?lang=${activeLang}`);
+            const res = await api.get(`/api/pages/team/`);
             return res.data.results || res.data;
         }
     });
@@ -154,7 +154,7 @@ const AdminDiocese = () => {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-heading font-bold text-slate-900 flex items-center gap-3">
-                            {t('admin_diocese_title', "Gestion du Diocèse")} <Library className="h-8 w-8 text-violet-500" />
+                            {t('admin_about_us_title', "À Propos de Nous")} <Library className="h-8 w-8 text-primary" />
                         </h1>
                         <p className="text-slate-500 font-medium font-body mt-1">{t('admin_diocese_subtitle', "Gérez l'histoire, la vision et l'équipe dirigeante.")}</p>
                     </div>
@@ -165,6 +165,8 @@ const AdminDiocese = () => {
                                 {langs.map((l) => (
                                     <button
                                         key={l.code}
+                                        id={`btn-lang-${l.code}`}
+                                        name={`lang_switch_${l.code}`}
                                         onClick={() => setActiveLang(l.code)}
                                         className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeLang === l.code ? "bg-white text-violet-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
                                     >
@@ -182,7 +184,12 @@ const AdminDiocese = () => {
                         }}>
                             <DialogTrigger asChild>
                                 {currentTab !== "presentation" && (
-                                    <Button onClick={() => setIsAddDialogOpen(true)} className="bg-violet-600 hover:bg-violet-700 text-white gap-2 h-12 px-6 rounded-xl shadow-lg shadow-violet-200 transition-all active:scale-95">
+                                    <Button 
+                                        id="btn-add-item-diocese" 
+                                        name="add_item_diocese"
+                                        onClick={() => setIsAddDialogOpen(true)} 
+                                        className="bg-violet-600 hover:bg-violet-700 text-white gap-2 h-12 px-6 rounded-xl shadow-lg shadow-violet-200 transition-all active:scale-95"
+                                    >
                                         <Plus className="h-5 w-5" /> {t('admin_add_item', "Ajouter")}
                                     </Button>
                                 )}
@@ -197,21 +204,34 @@ const AdminDiocese = () => {
                                     </DialogDescription>
                                 </DialogHeader>
                                 <form onSubmit={handleSubmit} className="space-y-6 pt-4">
-                                    <div className="space-y-2">
-                                        <label htmlFor="item-lang" className="text-sm font-bold text-slate-700">{t('admin_lang_label', 'Langue')}</label>
-                                        <select id="item-lang" name="language" defaultValue={editingItem?.language || activeLang} className="flex h-11 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm">
-                                            <option value="fr">{t('lang_fr', 'Français')}</option>
-                                                <option value="en">{t('lang_en', 'Anglais')}</option>
-                                        </select>
-                                    </div>
+                                    {/* Les champs bilingues sont désormais gérés directement dans chaque section ci-dessous */}
+
 
 
                                     {currentTab === "vision" && (
                                         <>
-                                            <div className="space-y-2">
-                                                <label htmlFor="diocese-axe-text" className="text-sm font-bold text-slate-700">{t('admin_axe_label', 'Axe de Mission')}</label>
-                                                <Input id="diocese-axe-text" name="text" defaultValue={editingItem?.text} required placeholder={t('admin_axe_placeholder', "Ex: Évangélisation")} className="rounded-xl h-11 shadow-sm border-slate-200" />
+                                            {/* Section Français */}
+                                            <div className="space-y-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[10px] font-bold bg-white px-2 py-1 rounded border border-slate-200">🇫🇷 {t('lang_fr', 'FRANÇAIS')}</span>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label htmlFor="text_fr" className="text-xs font-bold text-slate-600">{t('admin_axe_label', 'Axe de Mission')}</label>
+                                                    <Input id="text_fr" name="text_fr" defaultValue={editingItem?.text_fr || editingItem?.text} required placeholder="Ex: Évangélisation" className="rounded-xl h-10 bg-white" />
+                                                </div>
                                             </div>
+
+                                            {/* Section Anglais */}
+                                            <div className="space-y-4 p-4 bg-violet-50/50 rounded-2xl border border-violet-100">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[10px] font-bold bg-white px-2 py-1 rounded border border-violet-200 text-violet-600">🇬🇧 {t('lang_en', 'ENGLISH')}</span>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label htmlFor="text_en" className="text-xs font-bold text-slate-600">{t('admin_axe_label_en', 'Mission Axe (EN)')}</label>
+                                                    <Input id="text_en" name="text_en" defaultValue={editingItem?.text_en} placeholder="English translation..." className="rounded-xl h-10 bg-white" />
+                                                </div>
+                                            </div>
+
                                             <div className="space-y-2">
                                                 <label htmlFor="diocese-axe-order" className="text-sm font-bold text-slate-700">{t('admin_order_label', 'Ordre')}</label>
                                                 <Input id="diocese-axe-order" name="order" type="number" defaultValue={editingItem?.order || 0} className="rounded-xl h-11 shadow-sm border-slate-200" />
@@ -231,14 +251,37 @@ const AdminDiocese = () => {
                                                 <label htmlFor="diocese-value-icon" className="text-sm font-bold text-slate-700">{t('admin_icon_label', 'Icône (Lucide)')}</label>
                                                 <Input id="diocese-value-icon" name="icon" defaultValue={editingItem?.icon} required placeholder={t('admin_icon_placeholder', "Ex: Cross, Heart, Users")} className="rounded-xl h-11 shadow-sm border-slate-200" />
                                             </div>
-                                            <div className="space-y-2">
-                                                <label htmlFor="diocese-value-title" className="text-sm font-bold text-slate-700">{t('admin_title_label', 'Titre')}</label>
-                                                <Input id="diocese-value-title" name="title" defaultValue={editingItem?.title} required placeholder={t('admin_title_placeholder', "Titre de la valeur")} className="rounded-xl h-11 shadow-sm border-slate-200" />
+
+                                            {/* Section Français */}
+                                            <div className="space-y-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[10px] font-bold bg-white px-2 py-1 rounded border border-slate-200">🇫🇷 {t('lang_fr', 'FRANÇAIS')}</span>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label htmlFor="title_fr" className="text-xs font-bold text-slate-600">{t('admin_title_label', 'Titre')}</label>
+                                                    <Input id="title_fr" name="title_fr" defaultValue={editingItem?.title_fr || editingItem?.title} required placeholder="Titre en français..." className="rounded-xl h-10 bg-white" />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label htmlFor="description_fr" className="text-xs font-bold text-slate-600">{t('admin_desc_label', 'Description')}</label>
+                                                    <Textarea id="description_fr" name="description_fr" defaultValue={editingItem?.description_fr || editingItem?.description} required placeholder="Description détaillée..." className="rounded-xl min-h-[80px] bg-white text-sm" />
+                                                </div>
                                             </div>
-                                            <div className="space-y-2">
-                                                <label htmlFor="diocese-value-desc" className="text-sm font-bold text-slate-700">{t('admin_desc_label', 'Description')}</label>
-                                                <Textarea id="diocese-value-desc" name="description" defaultValue={editingItem?.description} required placeholder={t('admin_desc_placeholder', "Description détaillée...")} className="rounded-xl min-h-[100px] shadow-sm border-slate-200" />
+
+                                            {/* Section Anglais */}
+                                            <div className="space-y-4 p-4 bg-violet-50/50 rounded-2xl border border-violet-100">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[10px] font-bold bg-white px-2 py-1 rounded border border-violet-200 text-violet-600">🇬🇧 {t('lang_en', 'ENGLISH')}</span>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label htmlFor="title_en" className="text-xs font-bold text-slate-600">{t('admin_title_label_en', 'Title (EN)')}</label>
+                                                    <Input id="title_en" name="title_en" defaultValue={editingItem?.title_en} placeholder="English title..." className="rounded-xl h-10 bg-white" />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label htmlFor="description_en" className="text-xs font-bold text-slate-600">{t('admin_desc_label_en', 'Description (EN)')}</label>
+                                                    <Textarea id="description_en" name="description_en" defaultValue={editingItem?.description_en} placeholder="English description..." className="rounded-xl min-h-[80px] bg-white text-sm" />
+                                                </div>
                                             </div>
+
                                             <div className="space-y-2">
                                                 <label htmlFor="diocese-value-order" className="text-sm font-bold text-slate-700">{t('admin_order_label', 'Ordre')}</label>
                                                 <Input id="diocese-value-order" name="order" type="number" defaultValue={editingItem?.order || 0} className="rounded-xl h-11 shadow-sm border-slate-200" />
@@ -258,14 +301,37 @@ const AdminDiocese = () => {
                                                 <label htmlFor="diocese-team-name" className="text-sm font-bold text-slate-700">{t('admin_name_label', 'Nom Complet')}</label>
                                                 <Input id="diocese-team-name" name="name" defaultValue={editingItem?.name} required placeholder={t('admin_name_placeholder', "Prénom Nom")} className="rounded-xl h-11 shadow-sm border-slate-200" />
                                             </div>
-                                            <div className="space-y-2">
-                                                <label htmlFor="diocese-team-role" className="text-sm font-bold text-slate-700">{t('admin_role_label', 'Rôle / Titre')}</label>
-                                                <Input id="diocese-team-role" name="role" defaultValue={editingItem?.role} required placeholder={t('admin_role_placeholder', "Ex: Évêque de Makamba")} className="rounded-xl h-11 shadow-sm border-slate-200" />
+
+                                            {/* Section Français */}
+                                            <div className="space-y-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[10px] font-bold bg-white px-2 py-1 rounded border border-slate-200">🇫🇷 {t('lang_fr', 'FRANÇAIS')}</span>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label htmlFor="role_fr" className="text-xs font-bold text-slate-600">{t('admin_role_label', 'Rôle / Titre')}</label>
+                                                    <Input id="role_fr" name="role_fr" defaultValue={editingItem?.role_fr || editingItem?.role} required placeholder="Ex: Évêque de Makamba" className="rounded-xl h-10 bg-white" />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label htmlFor="description_fr" className="text-xs font-bold text-slate-600">{t('admin_bio_label', 'Bio / Description')}</label>
+                                                    <Textarea id="description_fr" name="description_fr" defaultValue={editingItem?.description_fr || editingItem?.description} required placeholder="Courte biographie..." className="rounded-xl min-h-[80px] bg-white text-sm" />
+                                                </div>
                                             </div>
-                                            <div className="space-y-2">
-                                                <label htmlFor="diocese-team-bio" className="text-sm font-bold text-slate-700">{t('admin_bio_label', 'Bio / Description')}</label>
-                                                <Textarea id="diocese-team-bio" name="description" defaultValue={editingItem?.description} required placeholder={t('admin_bio_placeholder', "Courte biographie...")} className="rounded-xl min-h-[100px] shadow-sm border-slate-200" />
+
+                                            {/* Section Anglais */}
+                                            <div className="space-y-4 p-4 bg-violet-50/50 rounded-2xl border border-violet-100">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[10px] font-bold bg-white px-2 py-1 rounded border border-violet-200 text-violet-600">🇬🇧 {t('lang_en', 'ENGLISH')}</span>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label htmlFor="role_en" className="text-xs font-bold text-slate-600">{t('admin_role_label_en', 'Role (EN)')}</label>
+                                                    <Input id="role_en" name="role_en" defaultValue={editingItem?.role_en} placeholder="English role..." className="rounded-xl h-10 bg-white" />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label htmlFor="description_en" className="text-xs font-bold text-slate-600">{t('admin_bio_label_en', 'Bio (EN)')}</label>
+                                                    <Textarea id="description_en" name="description_en" defaultValue={editingItem?.description_en} placeholder="English bio..." className="rounded-xl min-h-[80px] bg-white text-sm" />
+                                                </div>
                                             </div>
+
                                             <div className="space-y-2">
                                                 <label htmlFor="diocese-team-order" className="text-sm font-bold text-slate-700">{t('admin_order_label', 'Ordre')}</label>
                                                 <Input id="diocese-team-order" name="order" type="number" defaultValue={editingItem?.order || 0} className="rounded-xl h-11 shadow-sm border-slate-200" />
@@ -280,7 +346,13 @@ const AdminDiocese = () => {
                                     )}
 
                                     <DialogFooter>
-                                        <Button type="submit" disabled={saveMutation.isPending} className="w-full bg-violet-600 hover:bg-violet-700 h-12 rounded-xl text-white font-bold text-lg">
+                                        <Button 
+                                            type="submit" 
+                                            id="btn-save-diocese-item"
+                                            name="save_diocese_item"
+                                            disabled={saveMutation.isPending} 
+                                            className="w-full bg-violet-600 hover:bg-violet-700 h-12 rounded-xl text-white font-bold text-lg"
+                                        >
                                             {saveMutation.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Check className="h-5 w-5 mr-2" />}
                                             {editingItem ? t('admin_save_changes', "Enregistrer les modifications") : t('admin_confirm_add', "Confirmer l'ajout")}
                                         </Button>
@@ -322,11 +394,18 @@ const AdminDiocese = () => {
                             animate={{ opacity: 1, y: 0 }}
                             className="space-y-6"
                         >
-                            <VisionIntroManager activeLang={activeLang} />
+                            <VisionIntroManager activeLang={activeLang} filter="mission" />
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {(Array.isArray(axes) ? axes : (axes?.results || [])).map((item: any) => (
-                                    <ItemCard key={item.id} title={`${t('admin_axe_label', 'Axe')} #${item.order}`} content={item.text} image={item.image_display} onEdit={() => { setEditingItem(item); setIsAddDialogOpen(true); }} onDelete={() => deleteMutation.mutate({ endpoint: "axes", id: item.id })} />
+                                <ItemCard 
+                                    key={item.id} 
+                                    title={`${t('admin_axe_label', 'Axe')} #${item.order}`} 
+                                    content={item[`text_${activeLang}`] || item.text_fr || item.text} 
+                                    image={item.image_display} 
+                                    onEdit={() => { setEditingItem(item); setIsAddDialogOpen(true); }} 
+                                    onDelete={() => deleteMutation.mutate({ endpoint: "axes", id: item.id })} 
+                                />
                                 ))}
                             </div>
                         </motion.div>
@@ -337,10 +416,21 @@ const AdminDiocese = () => {
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
+                            className="space-y-6"
                         >
+                            <VisionIntroManager activeLang={activeLang} filter="team" />
+
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {(Array.isArray(team) ? team : (team?.results || [])).map((item: any) => (
-                                    <ItemCard key={item.id} title={item.name} subtitle={item.role} content={item.description} image={item.image_display} onEdit={() => { setEditingItem(item); setIsAddDialogOpen(true); }} onDelete={() => deleteMutation.mutate({ endpoint: "team", id: item.id })} />
+                                    <ItemCard 
+                                        key={item.id} 
+                                        title={item.name} 
+                                        subtitle={item[`role_${activeLang}`] || item.role_fr || item.role} 
+                                        content={item[`description_${activeLang}`] || item.description_fr || item.description} 
+                                        image={item.image_display} 
+                                        onEdit={() => { setEditingItem(item); setIsAddDialogOpen(true); }} 
+                                        onDelete={() => deleteMutation.mutate({ endpoint: "team", id: item.id })} 
+                                    />
                                 ))}
                             </div>
                         </motion.div>
@@ -361,7 +451,8 @@ const ItemCard = ({ title, subtitle, content, icon, image, onEdit, onDelete }: a
                     <Library className="h-10 w-10" />
                 </div>
             )}
-            <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            {/* On mobile, buttons are always visible. On desktop, they appear on hover. */}
+            <div className="absolute top-3 right-3 flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                 <Button variant="secondary" size="icon" onClick={onEdit} className="h-9 w-9 bg-white/90 backdrop-blur-sm text-slate-700 hover:text-violet-600 rounded-full shadow-lg border border-white/50">
                     <Edit className="h-4.5 w-4.5" />
                 </Button>
@@ -375,7 +466,7 @@ const ItemCard = ({ title, subtitle, content, icon, image, onEdit, onDelete }: a
                 {icon && <div className="text-violet-500 font-bold">{icon}</div>}
                 <h3 className="font-heading font-bold text-slate-900 leading-tight line-clamp-1">{title}</h3>
             </div>
-            {subtitle && <p className="text-[10px] font-bold text-violet-500 uppercase tracking-widest mb-2 px-2 py-0.5 bg-violet-50 rounded-full inline-block">{subtitle}</p>}
+            {subtitle && <p className="text-[10px] font-bold text-violet-500 uppercase tracking-widest mb-2 px-2 py-0.5 bg-violet-50 rounded-full inline-block truncate max-w-full">{subtitle}</p>}
             <p className="text-xs font-medium text-slate-500 line-clamp-2 font-body leading-relaxed">{content}</p>
         </CardContent>
     </Card>

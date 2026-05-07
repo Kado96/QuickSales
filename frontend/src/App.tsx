@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from "react";
+import React, { Suspense, lazy, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,6 +7,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 
 import Index from "./pages/Index";
+import FlashInfo from "./components/FlashInfo";
+import { useLocation } from "react-router-dom";
+import { useSiteSettings } from "@/hooks/useApi";
 
 // Lazy-loaded routes for better performance
 const Diocese = lazy(() => import("./pages/Diocese"));
@@ -34,6 +37,7 @@ const AdminHomepage = lazy(() => import("./pages/admin/Homepage"));
 const AdminUsers = lazy(() => import("./pages/admin/Users"));
 const AdminAddUser = lazy(() => import("./pages/admin/AddUser"));
 const AdminDocumentation = lazy(() => import("./pages/admin/Documentation"));
+const AdminMessages = lazy(() => import("./pages/admin/Messages"));
 
 const queryClient = new QueryClient();
 
@@ -52,42 +56,102 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/diocese" element={<Diocese />} />
-            <Route path="/diocese/historique" element={<Historique />} />
-            <Route path="/diocese/vision-mission" element={<VisionMission />} />
-            <Route path="/diocese/leadership" element={<Leadership />} />
-            <Route path="/paroisses" element={<Paroisses />} />
-            <Route path="/ministeres" element={<Ministeres />} />
-            <Route path="/actualites" element={<Actualites />} />
-            <Route path="/actualites/:id" element={<ArticleDetail />} />
-            <Route path="/ressources" element={<Ressources />} />
-            <Route path="/contact" element={<Contact />} />
-
-            {/* Admin Routes */}
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/users" element={<AdminUsers />} />
-            <Route path="/admin/users/add" element={<AdminAddUser />} />
-            <Route path="/admin/sermons" element={<AdminSermons />} />
-            <Route path="/admin/announcements" element={<AdminAnnouncements />} />
-            <Route path="/admin/testimonials" element={<AdminTestimonials />} />
-            <Route path="/admin/parishes" element={<AdminParishes />} />
-            <Route path="/admin/diocese" element={<AdminDiocese />} />
-            <Route path="/admin/ministries" element={<AdminMinistries />} />
-            <Route path="/admin/homepage" element={<AdminHomepage />} />
-            <Route path="/admin/settings" element={<AdminSettings />} />
-            <Route path="/admin/documentation" element={<AdminDocumentation />} />
-
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
+        <AppContent />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
+
+const hexToHsl = (hex: string) => {
+  // Remove the hash
+  hex = hex.replace('#', '');
+  
+  // Parse r, g, b
+  const r = parseInt(hex.substring(0, 2), 16) / 255;
+  const g = parseInt(hex.substring(2, 4), 16) / 255;
+  const b = parseInt(hex.substring(4, 6), 16) / 255;
+
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  let h = 0, s, l = (max + min) / 2;
+
+  if (max === min) {
+    h = s = 0; // achromatic
+  } else {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+    h /= 6;
+  }
+
+  return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
+};
+
+const AppContent = () => {
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith("/admin");
+  const { data: siteSettings } = useSiteSettings();
+
+  // Apply dynamic colors from settings
+  useEffect(() => {
+    if (siteSettings) {
+      const root = document.documentElement;
+      if (siteSettings.primary_color) {
+        try {
+          root.style.setProperty('--primary', hexToHsl(siteSettings.primary_color));
+          root.style.setProperty('--ring', hexToHsl(siteSettings.primary_color));
+        } catch (e) { console.error("Invalid primary color", e); }
+      }
+      if (siteSettings.secondary_color) {
+        try {
+          root.style.setProperty('--secondary', hexToHsl(siteSettings.secondary_color));
+        } catch (e) { console.error("Invalid secondary color", e); }
+      }
+      if (siteSettings.accent_color) {
+        try {
+          root.style.setProperty('--accent', hexToHsl(siteSettings.accent_color));
+        } catch (e) { console.error("Invalid accent color", e); }
+      }
+    }
+  }, [siteSettings]);
+
+  return (
+    <>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/a-propos" element={<Diocese />} />
+          <Route path="/a-propos/historique" element={<Historique />} />
+          <Route path="/a-propos/vision-mission" element={<VisionMission />} />
+          <Route path="/a-propos/leadership" element={<Leadership />} />
+          <Route path="/actualites" element={<Actualites />} />
+          <Route path="/actualites/:id" element={<ArticleDetail />} />
+          <Route path="/contact" element={<Contact />} />
+
+          {/* Admin Routes */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/users/add" element={<AdminAddUser />} />
+          <Route path="/admin/announcements" element={<AdminAnnouncements />} />
+          <Route path="/admin/testimonials" element={<AdminTestimonials />} />
+          <Route path="/admin/a-propos" element={<AdminDiocese />} />
+          <Route path="/admin/homepage" element={<AdminHomepage />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/admin/documentation" element={<AdminDocumentation />} />
+          <Route path="/admin/messages" element={<AdminMessages />} />
+
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
+      {!isAdmin && <FlashInfo />}
+    </>
+  );
+};
 
 export default App;

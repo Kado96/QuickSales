@@ -169,7 +169,12 @@ const AdminAnnouncements = () => {
                             }
                         }}>
                             <DialogTrigger asChild>
-                                <Button onClick={() => setIsAddDialogOpen(true)} className="bg-orange-500 hover:bg-orange-600 text-white gap-2 h-12 px-6 rounded-xl shadow-lg shadow-orange-500/20 transition-all active:scale-95 border-none">
+                                <Button 
+                                    id="btn-add-announcement"
+                                    name="add_announcement"
+                                    onClick={() => setIsAddDialogOpen(true)} 
+                                    className="bg-orange-500 hover:bg-orange-600 text-white gap-2 h-12 px-6 rounded-xl shadow-lg shadow-orange-500/20 transition-all active:scale-95 border-none"
+                                >
                                     <Plus className="h-5 w-5" /> {t('admin_add_item', "Ajouter")}
                                 </Button>
                             </DialogTrigger>
@@ -282,7 +287,13 @@ const AdminAnnouncements = () => {
                                     </div>
 
                                     <div className="sticky bottom-4 bg-white/90 backdrop-blur-sm p-4 rounded-3xl border border-slate-100 shadow-2xl z-50 mt-10">
-                                        <Button type="submit" disabled={saveMutation.isPending} className="w-full bg-orange-500 hover:bg-orange-600 h-14 rounded-[1.25rem] text-white font-bold text-lg shadow-xl shadow-orange-500/30 transition-all active:scale-[0.98]">
+                                        <Button 
+                                            type="submit" 
+                                            id="btn-publish-announcement"
+                                            name="publish_announcement"
+                                            disabled={saveMutation.isPending} 
+                                            className="w-full bg-orange-500 hover:bg-orange-600 h-14 rounded-[1.25rem] text-white font-bold text-lg shadow-xl shadow-orange-500/30 transition-all active:scale-[0.98]"
+                                        >
                                             {saveMutation.isPending ? <Loader2 className="h-6 w-6 animate-spin" /> : <CheckCircle className="h-6 w-6 mr-3" />}
                                             {editingItem ? t('admin_update_article', "Mettre à jour l'article") : t('admin_publish_article', "Publier l'article maintenant")}
                                         </Button>
@@ -339,6 +350,8 @@ const AdminAnnouncements = () => {
                                                 <Button
                                                     variant="secondary"
                                                     size="icon"
+                                                    id={`btn-edit-announcement-${item.id}`}
+                                                    name={`edit_announcement_${item.id}`}
                                                     onClick={() => setEditingItem(item)}
                                                     className="h-9 w-9 rounded-full bg-white/90 backdrop-blur-sm border border-slate-200 shadow-sm text-slate-600 hover:text-orange-600 hover:bg-white"
                                                 >
@@ -347,6 +360,8 @@ const AdminAnnouncements = () => {
                                                 <Button
                                                     variant="destructive"
                                                     size="icon"
+                                                    id={`btn-delete-announcement-${item.id}`}
+                                                    name={`delete_announcement_${item.id}`}
                                                     onClick={() => { if (window.confirm(t('admin_confirm_delete_article', "Supprimer cet article ?"))) deleteMutation.mutate(item.id); }}
                                                     className="h-9 w-9 rounded-full bg-white/90 backdrop-blur-sm border border-slate-200 shadow-sm text-slate-400 hover:text-red-600 hover:bg-white"
                                                 >

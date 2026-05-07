@@ -364,92 +364,6 @@ const AdminHomepage = () => {
                     </div>
                 </SectionBlock>
 
-                {/* ═══════════════════════════════════════════════════
-                    SECTION 2: STATISTIQUES
-                ═══════════════════════════════════════════════════ */}
-                <SectionBlock title={t('admin_section_stats', "Section Statistiques")} icon={BarChart3} color="bg-emerald-500" defaultOpen={false}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {[
-                            { key: "years", label: t('admin_stat_years', "Années de service"), valuePh: "25+" },
-                            { key: "emissions", label: t('admin_stat_emissions', "Émissions / Secteurs"), valuePh: "120+" },
-                            { key: "audience", label: t('admin_stat_audience', "Fidèles / Audience"), valuePh: "8K" },
-                            { key: "languages", label: t('admin_stat_languages', "Thématiques / Langues"), valuePh: "15" },
-                        ].map((stat) => (
-                            <div key={stat.key} className="p-5 bg-slate-50/50 rounded-2xl border border-slate-100 space-y-3">
-                                <h4 className="font-bold text-slate-900 text-sm">{stat.label}</h4>
-                                <div className="space-y-2">
-                                    <label htmlFor={`stat_${stat.key}_value`} className="text-[10px] font-bold text-slate-400 uppercase">{t('admin_value_label', "Valeur affichée")}</label>
-                                    <Input
-                                        id={`stat_${stat.key}_value`}
-                                        name={stat.key === "years" ? "stat_years_value" : `stat_${stat.key}_value`}
-                                        defaultValue={settings?.[stat.key === "years" ? "stat_years_value" : `stat_${stat.key}_value`]}
-                                        placeholder={stat.valuePh}
-                                        className="rounded-lg h-10"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label htmlFor={`stat_${stat.key}_label_${activeLang}`} className="text-[10px] font-bold text-slate-400 uppercase">{t('admin_label_label', "Label")}</label>
-                                    <Input
-                                        id={`stat_${stat.key}_label_${activeLang}`}
-                                        name={stat.key === "years" ? `stat_years_label_${activeLang}` : `stat_${stat.key}__${activeLang}`}
-                                        key={`stat_label_${stat.key}_${activeLang}`}
-                                        defaultValue={settings?.[stat.key === "years" ? `stat_years_label_${activeLang}` : `stat_${stat.key}__${activeLang}`]}
-                                        className="rounded-lg h-9 text-sm"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label htmlFor={`stat_${stat.key}_desc_${activeLang}`} className="text-[10px] font-bold text-slate-400 uppercase">{t('admin_desc_label', "Description")}</label>
-                                    <Input
-                                        id={`stat_${stat.key}_desc_${activeLang}`}
-                                        name={`stat_${stat.key}_desc_${activeLang}`}
-                                        key={`stat_desc_${stat.key}_${activeLang}`}
-                                        defaultValue={settings?.[`stat_${stat.key}_desc_${activeLang}`]}
-                                        className="rounded-lg h-9 text-sm"
-                                    />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Stats CTA */}
-                    <div className="p-5 bg-emerald-50/30 rounded-2xl border border-emerald-100/50 space-y-4">
-                        <h4 className="font-bold text-emerald-700 text-sm">{t('admin_stats_cta', "Bouton d'appel à l'action (CTA)")}</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="space-y-2">
-                                <label htmlFor={`stats_cta_title_${activeLang}`} className="text-[10px] font-bold text-slate-400 uppercase">{t('admin_title_label', "Titre CTA")}</label>
-                                <Input
-                                    id={`stats_cta_title_${activeLang}`}
-                                    name={`stats_cta_title_${activeLang}`}
-                                    key={`stats_cta_title_${activeLang}`}
-                                    defaultValue={settings?.[`stats_cta_title_${activeLang}`]}
-                                    className="rounded-lg h-9"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label htmlFor={`stats_cta_link_text_${activeLang}`} className="text-[10px] font-bold text-slate-400 uppercase">{t('admin_text_label', "Texte lien")}</label>
-                                <Input
-                                    id={`stats_cta_link_text_${activeLang}`}
-                                    name={`stats_cta_link_text_${activeLang}`}
-                                    key={`stats_cta_link_${activeLang}`}
-                                    defaultValue={settings?.[`stats_cta_link_text_${activeLang}`]}
-                                    className="rounded-lg h-9"
-                                />
-                            </div>
-                            {activeLang === "fr" && (
-                                <div className="space-y-2">
-                                    <label htmlFor="stats_cta_href" className="text-[10px] font-bold text-slate-400 uppercase">{t('admin_link_label', "Lien URL")}</label>
-                                    <Input
-                                        id="stats_cta_href"
-                                        name="stats_cta_href"
-                                        defaultValue={settings?.stats_cta_href}
-                                        placeholder="/diocese"
-                                        className="rounded-lg h-9 font-mono text-xs"
-                                    />
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </SectionBlock>
 
                 {/* ═══════════════════════════════════════════════════
                     SECTION 3: ACTUALITÉS / STORIES
@@ -680,7 +594,7 @@ const AdminHomepage = () => {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {[1, 2, 3].map((num) => (
                             <div key={num} className="p-4 bg-rose-50/30 rounded-xl border border-rose-100/50 space-y-3">
-                                <label htmlFor={`engage_item${num}_title_${activeLang}`} className="text-xs font-bold text-rose-600 uppercase">{t('admin_point_label', 'Point')} {num}</label>
+                                <label htmlFor={`engage_item${num}_title_${activeLang}`} className="text-xs font-bold text-rose-600 uppercase cursor-pointer">{t('admin_point_label', 'Point')} {num}</label>
                                 <Input
                                     id={`engage_item${num}_title_${activeLang}`}
                                     name={`engage_item${num}_title_${activeLang}`}
@@ -710,7 +624,7 @@ const AdminHomepage = () => {
                                 {activeLang === "fr" && (
                                     <div className="grid grid-cols-2 gap-2">
                                         <div className="space-y-1">
-                                            <label htmlFor={`engage_item${num}_href`} className="text-[10px] font-bold text-slate-400">{t('admin_link_label', "Lien")}</label>
+                                            <label htmlFor={`engage_item${num}_href`} className="text-[10px] font-bold text-slate-400 cursor-pointer">{t('admin_link_label', "Lien")}</label>
                                             <Input
                                                 id={`engage_item${num}_href`}
                                                 name={`engage_item${num}_href`}
@@ -720,7 +634,7 @@ const AdminHomepage = () => {
                                             />
                                         </div>
                                         <div className="space-y-1">
-                                            <label htmlFor={`engage_item${num}_icon`} className="text-[10px] font-bold text-slate-400">{t('admin_icon_label', "Icône")}</label>
+                                            <label htmlFor={`engage_item${num}_icon`} className="text-[10px] font-bold text-slate-400 cursor-pointer">{t('admin_icon_label', "Icône")}</label>
                                             <Input
                                                 id={`engage_item${num}_icon`}
                                                 name={`engage_item${num}_icon`}
@@ -736,54 +650,6 @@ const AdminHomepage = () => {
                     </div>
                 </SectionBlock>
 
-                {/* ═══════════════════════════════════════════════════
-                    SECTION 7: FOOTER
-                ═══════════════════════════════════════════════════ */}
-                <SectionBlock title={t('footer_title', "Pied de page (Footer)")} icon={Type} color="bg-slate-600" defaultOpen={false}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <label htmlFor="footer_brand_name" className="text-sm font-bold text-slate-700">{t('admin_brand_name', "Nom de marque")}</label>
-                            <Input
-                                id="footer_brand_name"
-                                name="footer_brand_name"
-                                defaultValue={settings?.footer_brand_name}
-                                placeholder="Diocèse de Makamba"
-                                className="rounded-xl border-slate-200"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <label htmlFor="footer_brand_subtitle" className="text-sm font-bold text-slate-700">{t('admin_brand_subtitle', "Sous-titre marque")}</label>
-                            <Input
-                                id="footer_brand_subtitle"
-                                name="footer_brand_subtitle"
-                                defaultValue={settings?.footer_brand_subtitle}
-                                placeholder="Église Anglicane du Burundi..."
-                                className="rounded-xl border-slate-200"
-                            />
-                        </div>
-                        <div className="space-y-2 col-span-full">
-                            <label htmlFor={`footer_description_${activeLang}`} className="text-sm font-bold text-slate-700">{t('admin_footer_desc', "Description Footer")}</label>
-                            <Textarea
-                                id={`footer_description_${activeLang}`}
-                                name={`footer_description_${activeLang}`}
-                                key={`footer_desc_${activeLang}`}
-                                defaultValue={settings?.[`footer_description_${activeLang}`]}
-                                placeholder="Description du diocèse pour le pied de page..."
-                                className="rounded-xl border-slate-200 min-h-[80px]"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <label htmlFor={`footer_copyright_${activeLang}`} className="text-sm font-bold text-slate-700">{t('admin_footer_cp', "Copyright")}</label>
-                            <Input
-                                id={`footer_copyright_${activeLang}`}
-                                name={`footer_copyright_${activeLang}`}
-                                key={`footer_cp_${activeLang}`}
-                                defaultValue={settings?.[`footer_copyright_${activeLang}`]}
-                                className="rounded-xl border-slate-200"
-                            />
-                        </div>
-                    </div>
-                </SectionBlock>
 
                 {/* ── Bottom Save ── */}
                 <div className="flex justify-end pt-4">

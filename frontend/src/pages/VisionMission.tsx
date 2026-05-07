@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Cross, Heart, Users, Shield, BookOpen, Loader2, Target } from "lucide-react";
-import { useMissionAxes, useVisionValues, useSiteSettings } from "@/hooks/useApi";
+import { useMissionAxes, useVisionValues, useSiteSettings, useDiocesePresentation } from "@/hooks/useApi";
 import { useTranslation } from "react-i18next";
 import visionBg from "@/assets/story-education.jpg";
 
@@ -19,11 +19,14 @@ const iconMap: Record<string, any> = {
 
 const VisionMission = () => {
   const { t, i18n } = useTranslation();
-  const lang = i18n.language || "fr";
+  // Normaliser la langue (ex: 'fr-FR' devient 'fr') pour correspondre aux clés de l'admin
+  const lang = (i18n.language || "fr").split('-')[0].toLowerCase();
 
   const { data: apiAxes, isLoading: loadingAxes } = useMissionAxes();
   const { data: apiValues, isLoading: loadingValues } = useVisionValues();
   const { data: settings, isLoading: loadingSettings } = useSiteSettings();
+  const { data: presentationData, isLoading: loadingPresentation } = useDiocesePresentation();
+  const presentation = presentationData?.[0];
 
 
   const displayAxes = apiAxes && apiAxes.length > 0
@@ -50,7 +53,7 @@ const VisionMission = () => {
       { icon: Shield, title: t('value_integrity', "Intégrité"), description: t('value_integrity_desc', "Transparence, honnêteté et responsabilité guident notre gouvernance et nos relations.") },
     ];
 
-  const isLoading = loadingAxes || loadingValues || loadingSettings;
+  const isLoading = loadingAxes || loadingValues || loadingSettings || loadingPresentation;
 
   return (
     <div className="min-h-screen bg-background">
@@ -81,7 +84,7 @@ const VisionMission = () => {
                     {t('vision_title', 'Notre Vision')}
                   </h2>
                   <p className="font-heading text-2xl md:text-4xl lg:text-5xl text-white leading-tight md:leading-snug italic font-medium drop-shadow-xl">
-                    « {settings?.[`vision_text_${lang}`] || settings?.vision_text_fr || t('vision_text_default')}»
+                    « {presentation?.[`vision_description_${lang}`] || presentation?.vision_description_fr || settings?.[`vision_text_${lang}`] || settings?.vision_text_fr || t('vision_text_default')}»
                   </p>
                 </motion.div>
               </div>
@@ -130,7 +133,7 @@ const VisionMission = () => {
                       </h2>
                     </div>
                     <p className="font-body text-slate-500 text-lg mb-10">
-                      {settings?.[`mission_intro_${lang}`] || settings?.mission_intro_fr || t('mission_intro_default')}
+                      {presentation?.[`mission_description_${lang}`] || presentation?.mission_description_fr || settings?.[`mission_intro_${lang}`] || settings?.mission_intro_fr || t('mission_intro_default')}
                     </p>
 
 

@@ -7,23 +7,30 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 const StoriesSection = () => {
-  const [activeCategory, setActiveCategory] = useState<string>("Toutes");
+  const { t, i18n } = useTranslation();
+  // Normaliser la langue (ex: 'fr-FR' devient 'fr') pour correspondre aux clés de l'admin
+  const lang = (i18n.language || "fr").split('-')[0].toLowerCase();
+  
+  const [activeCategory, setActiveCategory] = useState<string>(t('cat_all', "Toutes"));
   const { data: announcements, isLoading } = useAnnouncements();
   const { data: settings } = useSiteSettings();
-  const { t, i18n } = useTranslation();
-  const lang = i18n.language || "fr";
 
   const badge = settings?.[`stories_badge_${lang}`] || settings?.stories_badge_fr || t('stories_badge_default', "Sur le terrain");
   const title = settings?.[`stories_title_${lang}`] || settings?.stories_title_fr || t('stories_title_default', "Toute l'actualité de nos actions");
 
+  const getTranslatedCategory = (cat: string) => {
+    switch(cat) {
+      case 'temoignages': return t('cat_testimonials', "Témoignages");
+      case 'evenements': return t('cat_events', "Événements");
+      case 'nouvelles': return t('cat_news', "Nouvelles");
+      default: return cat;
+    }
+  };
 
   // Filtrer par catégorie puis Limiter à 3 histoires pour la page d'accueil
   const filteredAnnouncements = announcements?.filter(story => {
-    if (activeCategory === "Toutes") return true;
-    if (activeCategory === "Témoignages") return story.category === "temoignages";
-    if (activeCategory === "Événements") return story.category === "evenements";
-    if (activeCategory === "Nouvelles") return story.category === "nouvelles";
-    return true;
+    if (activeCategory === t('cat_all', "Toutes")) return true;
+    return getTranslatedCategory(story.category) === activeCategory;
   }) || [];
 
   const stories = filteredAnnouncements.slice(0, 3);
@@ -103,7 +110,7 @@ const StoriesSection = () => {
                   {/* Top: Badge */}
                   <div>
                     <span className="inline-flex items-center px-3 py-1 rounded bg-primary text-primary-foreground font-body text-xs font-bold uppercase tracking-wider shadow-sm">
-                      {story.category_display || story.category || "Nouvelles"}
+                      {getTranslatedCategory(story.category)}
                     </span>
                   </div>
 

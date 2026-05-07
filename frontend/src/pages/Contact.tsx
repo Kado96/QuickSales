@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import PageHero from "@/components/PageHero";
 import { useTranslation } from "react-i18next";
 import { useSiteSettings } from "@/hooks/useApi";
+import { api } from "@/lib/api";
 
 const Contact = () => {
   const { t } = useTranslation();
@@ -13,11 +14,16 @@ const Contact = () => {
   const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Ici on pourrait appeler une API pour envoyer le message
-    setSubmitted(true);
-    setFormData({ name: "", email: "", subject: "", message: "" });
+    try {
+      await api.post("/api/pages/messages/", formData);
+      setSubmitted(true);
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    } catch (error) {
+      console.error(error);
+      alert("Une erreur s'est produite lors de l'envoi de votre message.");
+    }
   };
 
   return (

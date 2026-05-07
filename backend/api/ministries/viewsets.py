@@ -31,6 +31,7 @@ class MinistryViewSet(viewsets.ModelViewSet):
     queryset = Ministry.objects.all().prefetch_related('activities').order_by('order')
     serializer_class = MinistrySerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    pagination_class = None
 
     @action(detail=True, methods=['post'])
     def activities(self, request, pk=None):

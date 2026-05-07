@@ -5,7 +5,9 @@ from .viewsets import (
     MissionAxeViewSet, 
     VisionValueViewSet,
     TeamMemberViewSet,
-    DiocesePresentationViewSet
+    DiocesePresentationViewSet,
+    ParoissesPresentationViewSet,
+    ContactMessageViewSet
 )
 
 router = DefaultRouter()
@@ -14,6 +16,8 @@ router.register(r'axes', MissionAxeViewSet)
 router.register(r'values', VisionValueViewSet)
 router.register(r'team', TeamMemberViewSet)
 router.register(r'diocese-presentation', DiocesePresentationViewSet, basename='diocese-presentation')
+router.register(r'paroisses-presentation', ParoissesPresentationViewSet, basename='paroisses-presentation')
+router.register(r'messages', ContactMessageViewSet, basename='contact-messages')
 
 urlpatterns = [
     path('', include(router.urls)),

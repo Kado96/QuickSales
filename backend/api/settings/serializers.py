@@ -14,6 +14,13 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
     stories_bg_image_display = serializers.SerializerMethodField()
     parishes_bg_image_display = serializers.SerializerMethodField()
     
+    # New Image Displays
+    history_image_display = serializers.SerializerMethodField()
+    bishop_photo_display = serializers.SerializerMethodField()
+    vision_image_display = serializers.SerializerMethodField()
+    mission_image_display = serializers.SerializerMethodField()
+    values_image_display = serializers.SerializerMethodField()
+    
     # Dynamic localized fields
     hero_title = serializers.SerializerMethodField()
     hero_subtitle = serializers.SerializerMethodField()
@@ -84,6 +91,31 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
     stories_badge = serializers.SerializerMethodField()
     stories_title = serializers.SerializerMethodField()
 
+    # Info Message (Flash Info)
+    info_message_text = serializers.SerializerMethodField()
+    info_badge_text = serializers.SerializerMethodField()
+
+    # New Localized Fields for Admin Components
+    organization_title = serializers.SerializerMethodField()
+    organization_subtitle = serializers.SerializerMethodField()
+    organization_text = serializers.SerializerMethodField()
+    history_title = serializers.SerializerMethodField()
+    history_text = serializers.SerializerMethodField()
+    bishop_title = serializers.SerializerMethodField()
+    bishop_message = serializers.SerializerMethodField()
+    vision_badge = serializers.SerializerMethodField()
+    mission_badge = serializers.SerializerMethodField()
+    mission_title = serializers.SerializerMethodField()
+    mission_description = serializers.SerializerMethodField()
+    values_badge = serializers.SerializerMethodField()
+    values_title = serializers.SerializerMethodField()
+    values_description = serializers.SerializerMethodField()
+    team_badge = serializers.SerializerMethodField()
+    nav_history = serializers.SerializerMethodField()
+    nav_bishop = serializers.SerializerMethodField()
+    nav_vision = serializers.SerializerMethodField()
+    nav_team = serializers.SerializerMethodField()
+
     class Meta:
         model = SiteSettings
         fields = [
@@ -116,8 +148,25 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
             'engage_item2_title', 'engage_item2_desc', 'engage_item2_cta',
             'engage_item3_title', 'engage_item3_desc', 'engage_item3_cta',
             'stories_badge', 'stories_title',
+            'info_message_text', 'info_badge_text',
+            
+            # New Images and Fields
+            'history_image', 'history_image_display',
+            'bishop_photo', 'bishop_photo_display',
+            'vision_image', 'vision_image_display',
+            'mission_image', 'mission_image_display',
+            'values_image', 'values_image_display',
+            'bishop_name',
+            'organization_title', 'organization_subtitle', 'organization_text',
+            'history_title', 'history_text', 'bishop_title', 'bishop_message',
+            'vision_badge', 'mission_badge', 'mission_title', 'mission_description',
+            'values_badge', 'values_title', 'values_description', 'team_badge',
+            'nav_history', 'nav_bishop', 'nav_vision', 'nav_team',
             
             # Additional localized fields
+            # Info Message raw fields
+            'info_message_text_fr', 'info_message_text_en', 'info_badge_text_fr', 'info_badge_text_en', 'info_message_link', 'info_message_active',
+            
             # Stats Localized Labels
             'stat_years_label_fr', 'stat_years_label_en',             'stat_emissions_fr', 'stat_emissions_en',             'stat_audience_fr', 'stat_audience_en',             'stat_languages_fr', 'stat_languages_en',             'stat_years_desc_fr', 'stat_years_desc_en',             'stat_emissions_desc_fr', 'stat_emissions_desc_en',             'stat_audience_desc_fr', 'stat_audience_desc_en',             'stat_languages_desc_fr', 'stat_languages_desc_en',             
             # Vision & Mission (Localized)
@@ -145,11 +194,36 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
             # Contact (Localized)
             'contact_content_fr', 'contact_content_en',             'contact_badge_fr', 'contact_badge_en', 
             # Diocese / History / Vision Intro (Localized)
-            'diocese_subtitle_fr',
-            'history_subtitle_fr',
-            'history_intro_title_fr', 'history_intro_text_fr',
-            'vision_subtitle_fr', 'vision_text_fr', 'mission_intro_fr',
-            'bishop_bio_p1_fr', 'bishop_bio_p2_fr',
+            'diocese_subtitle_fr', 'diocese_subtitle_en',
+            'history_subtitle_fr', 'history_subtitle_en',
+            'history_intro_title_fr', 'history_intro_title_en',
+            'history_intro_text_fr', 'history_intro_text_en',
+            'vision_subtitle_fr', 'vision_subtitle_en',
+            'vision_text_fr', 'vision_text_en',
+            'mission_intro_fr', 'mission_intro_en',
+            'bishop_bio_p1_fr', 'bishop_bio_p1_en',
+            'bishop_bio_p2_fr', 'bishop_bio_p2_en',
+            
+            # New Raw Fields for FR and EN
+            'organization_title_fr', 'organization_title_en',
+            'organization_subtitle_fr', 'organization_subtitle_en',
+            'organization_text_fr', 'organization_text_en',
+            'history_title_fr', 'history_title_en',
+            'history_text_fr', 'history_text_en',
+            'bishop_title_fr', 'bishop_title_en',
+            'bishop_message_fr', 'bishop_message_en',
+            'vision_badge_fr', 'vision_badge_en',
+            'mission_badge_fr', 'mission_badge_en',
+            'mission_title_fr', 'mission_title_en',
+            'mission_description_fr', 'mission_description_en',
+            'values_badge_fr', 'values_badge_en',
+            'values_title_fr', 'values_title_en',
+            'values_description_fr', 'values_description_en',
+            'team_badge_fr', 'team_badge_en',
+            'nav_history_fr', 'nav_history_en',
+            'nav_bishop_fr', 'nav_bishop_en',
+            'nav_vision_fr', 'nav_vision_en',
+            'nav_team_fr', 'nav_team_en',
 
             # Button labels (Localized)
             'btn_emissions_fr', 'btn_emissions_en',             'btn_teachings_fr', 'btn_teachings_en',             'btn_meditation_fr', 'btn_meditation_en', 
@@ -200,10 +274,13 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
 
     def _resolve_localized(self, obj, field_base):
         lang = self._get_lang()
-        val = getattr(obj, f'{field_base}_{lang}', None)
-        if not val: # Fallback if empty string or None
-            val = getattr(obj, f'{field_base}_fr', '')
-        return val
+        try:
+            val = getattr(obj, f'{field_base}_{lang}', None)
+            if not val: # Fallback if empty string or None
+                val = getattr(obj, f'{field_base}_fr', '')
+            return val
+        except AttributeError:
+            return ''
 
     def get_hero_title(self, obj): return self._resolve_localized(obj, 'hero_title')
     def get_hero_subtitle(self, obj): return self._resolve_localized(obj, 'hero_subtitle')
@@ -268,7 +345,30 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
 
     def get_stories_badge(self, obj): return self._resolve_localized(obj, 'stories_badge')
     def get_stories_title(self, obj): return self._resolve_localized(obj, 'stories_title')
+    def get_info_message_text(self, obj): return self._resolve_localized(obj, 'info_message_text')
+    def get_info_badge_text(self, obj): return self._resolve_localized(obj, 'info_badge_text')
     
+    # New localized getters
+    def get_organization_title(self, obj): return self._resolve_localized(obj, 'organization_title')
+    def get_organization_subtitle(self, obj): return self._resolve_localized(obj, 'organization_subtitle')
+    def get_organization_text(self, obj): return self._resolve_localized(obj, 'organization_text')
+    def get_history_title(self, obj): return self._resolve_localized(obj, 'history_title')
+    def get_history_text(self, obj): return self._resolve_localized(obj, 'history_text')
+    def get_bishop_title(self, obj): return self._resolve_localized(obj, 'bishop_title')
+    def get_bishop_message(self, obj): return self._resolve_localized(obj, 'bishop_message')
+    def get_vision_badge(self, obj): return self._resolve_localized(obj, 'vision_badge')
+    def get_mission_badge(self, obj): return self._resolve_localized(obj, 'mission_badge')
+    def get_mission_title(self, obj): return self._resolve_localized(obj, 'mission_title')
+    def get_mission_description(self, obj): return self._resolve_localized(obj, 'mission_description')
+    def get_values_badge(self, obj): return self._resolve_localized(obj, 'values_badge')
+    def get_values_title(self, obj): return self._resolve_localized(obj, 'values_title')
+    def get_values_description(self, obj): return self._resolve_localized(obj, 'values_description')
+    def get_team_badge(self, obj): return self._resolve_localized(obj, 'team_badge')
+    def get_nav_history(self, obj): return self._resolve_localized(obj, 'nav_history')
+    def get_nav_bishop(self, obj): return self._resolve_localized(obj, 'nav_bishop')
+    def get_nav_vision(self, obj): return self._resolve_localized(obj, 'nav_vision')
+    def get_nav_team(self, obj): return self._resolve_localized(obj, 'nav_team')
+
     def to_representation(self, instance):
         """S'assurer que tous les champs sont présents dans le JSON, même s'ils sont vides"""
         try:
@@ -396,3 +496,9 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
 
     def get_parishes_bg_image_display(self, obj):
         return self._get_image_url(obj, 'parishes_bg_image')
+
+    def get_history_image_display(self, obj): return self._get_image_url(obj, 'history_image')
+    def get_bishop_photo_display(self, obj): return self._get_image_url(obj, 'bishop_photo')
+    def get_vision_image_display(self, obj): return self._get_image_url(obj, 'vision_image')
+    def get_mission_image_display(self, obj): return self._get_image_url(obj, 'mission_image')
+    def get_values_image_display(self, obj): return self._get_image_url(obj, 'values_image')

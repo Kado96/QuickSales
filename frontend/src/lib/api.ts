@@ -175,8 +175,10 @@ export const fetchParishes = async (): Promise<Parish[] | null> => {
 
 /** Récupère les ministères */
 export const fetchMinistries = async (): Promise<Ministry[] | null> => {
-    const data = await apiFetch<PaginatedResponse<Ministry>>(`/api/ministries/`);
-    return (Array.isArray(data) ? (data as any) : data?.results) ?? null;
+  const data = await apiFetch<any>(`/api/ministries/`);
+  if (!data) return null;
+  // Handle both direct array (new) and paginated object (old/fallback)
+  return Array.isArray(data) ? data : (data.results || []);
 };
 
 /** Récupère le contenu de la page ministères (Hero, etc.) */
@@ -220,6 +222,13 @@ export const fetchTeamMembers = async (lang?: string): Promise<TeamMember[] | nu
 export const fetchDiocesePresentation = async (lang?: string): Promise<DiocesePresentation[] | null> => {
     const language = normalizeLang(lang);
     const data = await apiFetch<PaginatedResponse<DiocesePresentation>>(`/api/pages/diocese-presentation/current/?language=${language}`);
+    return (Array.isArray(data) ? (data as any) : data?.results) ?? null;
+};
+
+/** Récupère la présentation de la page paroisses */
+export const fetchParoissesPresentation = async (lang?: string): Promise<any | null> => {
+    const language = normalizeLang(lang);
+    const data = await apiFetch<any>(`/api/pages/paroisses-presentation/current/?language=${language}`);
     return (Array.isArray(data) ? (data as any) : data?.results) ?? null;
 };
 

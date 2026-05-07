@@ -63,6 +63,29 @@ const IdentityTabContent = React.memo(({ settings }: IdentityTabContentProps) =>
                             {t('admin_default_lang_tip', "Cette langue sera utilisée pour les nouveaux visiteurs si leur navigateur ne permet pas la détection automatique.")}
                         </p>
                     </div>
+
+                    <div className="space-y-4 pt-4 border-t border-slate-100">
+                        <div className="space-y-2">
+                            <label htmlFor="footer_brand_name" className="text-xs font-bold text-slate-400">{t('admin_brand_name_label', "Nom de Marque (Footer)")}</label>
+                            <Input
+                                id="footer_brand_name"
+                                name="footer_brand_name"
+                                defaultValue={settings?.footer_brand_name}
+                                placeholder="Diocèse de Makamba"
+                                className="rounded-xl border-slate-200 h-10"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label htmlFor="footer_brand_subtitle" className="text-xs font-bold text-slate-400">{t('admin_brand_subtitle_label', "Slogan / Sous-titre (Footer)")}</label>
+                            <Input
+                                id="footer_brand_subtitle"
+                                name="footer_brand_subtitle"
+                                defaultValue={settings?.footer_brand_subtitle}
+                                placeholder="Église Anglicane du Burundi"
+                                className="rounded-xl border-slate-200 h-10"
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
 

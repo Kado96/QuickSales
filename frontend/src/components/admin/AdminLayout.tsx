@@ -26,7 +26,8 @@ import {
     ChevronDown,
     BookOpen,
     Globe,
-    UserCog
+    UserCog,
+    Home
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,6 +43,7 @@ import { Input } from "@/components/ui/input";
 
 import { useTranslation } from "react-i18next";
 import { useSiteSettings } from "@/hooks/useApi";
+import { api } from "@/lib/api";
 
 interface AdminLayoutProps {
     children: ReactNode;
@@ -49,12 +51,11 @@ interface AdminLayoutProps {
 
 const sidebarItems = [
     { icon: LayoutDashboard, labelKey: "admin_dashboard", href: "/admin", color: "text-blue-500", adminOnly: false },
-    { icon: Library, labelKey: "admin_diocese", href: "/admin/diocese", color: "text-violet-500", adminOnly: true },
-    { icon: MapPin, labelKey: "admin_parishes", href: "/admin/parishes", color: "text-emerald-500", adminOnly: true },
-    { icon: Users, labelKey: "admin_ministries", href: "/admin/ministries", color: "text-blue-400", adminOnly: true },
+    { icon: Home, labelKey: "admin_home", href: "/admin/homepage", color: "text-primary", adminOnly: true },
+    { icon: Library, labelKey: "admin_diocese", href: "/admin/a-propos", color: "text-violet-500", adminOnly: true },
+    { icon: Mail, labelKey: "admin_contact", href: "/admin/messages", color: "text-indigo-500", adminOnly: false },
     { icon: Megaphone, labelKey: "admin_news", href: "/admin/announcements", color: "text-orange-500", adminOnly: false },
     { icon: Quote, labelKey: "admin_testimonials", href: "/admin/testimonials", color: "text-amber-500", adminOnly: true },
-    { icon: Radio, labelKey: "admin_resources", href: "/admin/sermons", color: "text-rose-500", adminOnly: false },
     { icon: UserCog, labelKey: "admin_users_management", href: "/admin/users", color: "text-teal-500", adminOnly: true },
     { icon: Settings, labelKey: "admin_settings", href: "/admin/settings", color: "text-slate-400", adminOnly: true },
     { icon: FileText, labelKey: "admin_manual", href: "/admin/documentation", color: "text-indigo-500", adminOnly: false },
@@ -65,6 +66,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     const { data: siteSettings } = useSiteSettings();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isMobile, setIsMobile] = useState(false);
+    const [unreadMessages, setUnreadMessages] = useState(0);
     const location = useLocation();
     const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem("user") || '{"username": "Admin", "role": "admin"}');
@@ -84,6 +86,20 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
             i18n.changeLanguage(siteSettings.default_language);
         }
     }, [siteSettings, i18n]);
+
+    useEffect(() => {
+        const fetchUnread = async () => {
+            try {
+                const res = await api.get('/api/pages/messages/unread_count/');
+                setUnreadMessages(res.data.unread_count);
+            } catch (e) {
+                console.error(e);
+            }
+        };
+        fetchUnread();
+        const interval = setInterval(fetchUnread, 60000);
+        return () => clearInterval(interval);
+    }, []);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -169,7 +185,12 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                                 >
                                     <item.icon className={`h-5 w-5 ${isActive ? "text-white" : item.color} group-hover:scale-110 transition-transform`} />
                                     <span className="font-medium text-sm">{t(item.labelKey)}</span>
-                                    {isActive && <ChevronRight className="ml-auto h-4 w-4 opacity-70" />}
+                                    {item.labelKey === "admin_contact" && unreadMessages > 0 && (
+                                        <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                                            {unreadMessages}
+                                        </span>
+                                    )}
+                                    {isActive && item.labelKey !== "admin_contact" && <ChevronRight className="ml-auto h-4 w-4 opacity-70" />}
                                 </Link>
                             );
                         })}
@@ -221,16 +242,6 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                                     <DropdownMenuItem asChild>
                                         <Link to="/admin/announcements" className="flex items-center gap-2 px-3 py-2 cursor-pointer font-medium text-slate-700 hover:bg-slate-50 rounded-lg">
                                             <Bell className="h-4 w-4 text-amber-500" /> {t("nav_news")}
-                                        </Link>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem asChild>
-                                        <Link to="/admin/parishes" className="flex items-center gap-2 px-3 py-2 cursor-pointer font-medium text-slate-700 hover:bg-slate-50 rounded-lg">
-                                            <MapPin className="h-4 w-4 text-emerald-500" /> {t("nav_parishes")}
-                                        </Link>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem asChild>
-                                        <Link to="/admin/sermons" className="flex items-center gap-2 px-3 py-2 cursor-pointer font-medium text-slate-700 hover:bg-slate-50 rounded-lg">
-                                            <BookOpen className="h-4 w-4 text-blue-500" /> {t("nav_resources")}
                                         </Link>
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>

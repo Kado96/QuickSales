@@ -4,7 +4,7 @@ import { MapPin, Phone, Users, Loader2, Home, Cross, Church } from "lucide-react
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/PageHero";
-import { useParishes } from "@/hooks/useApi";
+import { useParishes, useParoissesPresentation } from "@/hooks/useApi";
 import { useTranslation } from "react-i18next";
 
 const defaultImage = "https://images.unsplash.com/photo-1438283173091-5dbf5c5a3206?q=80&w=1200&auto=format&fit=crop";
@@ -13,11 +13,18 @@ const zoneList = ["Toutes", "Makamba", "Kayogoro", "Nyanza-Lac", "Kibago", "Maba
 
 
 const Paroisses = () => {
-  const { data: apiParishes, isLoading } = useParishes();
+  const { data: apiParishes, isLoading: loadingParishes } = useParishes();
+  const { data: presentationList, isLoading: loadingPresentation } = useParoissesPresentation();
+  const presentation = presentationList?.[0];
+  
   const [activeZone, setActiveZone] = useState("Toutes");
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  // Normaliser la langue (ex: 'fr-FR' devient 'fr') pour correspondre aux clés de l'admin
+  const lang = (i18n.language || "fr").split('-')[0].toLowerCase();
 
-  const displayParishes = (Array.isArray(apiParishes) ? apiParishes : (apiParishes?.results || []));
+  const isLoading = loadingParishes || loadingPresentation;
+
+  const displayParishes = apiParishes || [];
 
   const filtered = activeZone === "Toutes"
     ? displayParishes
@@ -28,35 +35,39 @@ const Paroisses = () => {
       <Header />
 
       {/* 
-        HERO SECTION avec l'image premium 
+        HERO SECTION DYNAMIQUE (STYLE PRO)
       */}
-      <div className="relative w-full h-[50vh] min-h-[400px] flex shrink-0 items-center justify-center overflow-hidden">
+      <div className="relative w-full h-[60vh] min-h-[450px] flex shrink-0 items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
-            src="/images/paroisses-hero.png"
-            alt="Nos paroisses en plein jour au Burundi"
+            src={presentation?.hero_image_display || "/images/paroisses-hero.png"}
+            alt="Nos paroisses"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/30" />
         </div>
 
-        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto mt-20">
+        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto mt-24">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            <span className="inline-block py-1.5 px-4 rounded-full bg-white/20 backdrop-blur-md text-white/90 text-sm font-semibold tracking-wider mb-6 border border-white/30 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
-              {t('parishes_hero_badge', 'PRÉSENCE COMMUNAUTAIRE')}
+            <span className="inline-block py-1.5 px-4 rounded-full bg-white/10 backdrop-blur-md text-white/90 text-sm font-semibold tracking-widest uppercase mb-6 border border-white/20 shadow-lg">
+              {presentation?.[`hero_badge_${lang}`] || t('parishes_hero_badge', 'PRÉSENCE COMMUNAUTAIRE')}
             </span>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white font-heading mb-6 tracking-tight drop-shadow-md">
-              {t('parishes_hero_title', 'Nos')} <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-green-100">{t('nav_parishes', 'Paroisses')}</span>
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white font-heading mb-6 tracking-tight drop-shadow-xl leading-tight">
+              {presentation?.[`hero_title_${lang}`] || t('parishes_hero_title', 'Nos Paroisses')}
             </h1>
-            <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto font-light leading-relaxed drop-shadow">
-              {t('parishes_hero_description', "Découvrez les paroisses du diocèse de Makamba. De véritables foyers spirituels, au cœur de chaque communauté, pour partager la foi et grandir ensemble.")}
+            <p className="text-lg md:text-2xl text-white/80 max-w-3xl mx-auto font-light leading-relaxed drop-shadow-md">
+              {presentation?.[`hero_subtitle_${lang}`] || t('parishes_hero_description')}
             </p>
           </motion.div>
         </div>
+        {/* Background Decorative Title */}
+        <h1 className="text-6xl md:text-8xl lg:text-9xl font-heading font-black text-white/10 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none tracking-tighter whitespace-nowrap uppercase">
+          {presentation?.[`hero_title_${lang}`] || t('nav_parishes', 'Paroisses')}
+        </h1>
       </div>
 
       <main className="flex-grow pb-24">

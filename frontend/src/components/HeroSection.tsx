@@ -7,7 +7,9 @@ import { useTranslation } from "react-i18next";
 const HeroSection = () => {
   const { data: settings } = useSiteSettings();
   const { t, i18n } = useTranslation();
-  const lang = i18n.language || "fr";
+  
+  // Normaliser la langue (ex: 'fr-FR' devient 'fr') pour correspondre aux clés de l'admin
+  const lang = (i18n.language || "fr").split('-')[0].toLowerCase();
 
   const title = settings?.[`hero_title_${lang}`] || t('nav_home', 'Diocèse de Makamba');
   const subtitle = settings?.[`hero_subtitle_${lang}`] || t('diocese_hero_desc');

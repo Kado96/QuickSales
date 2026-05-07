@@ -14,19 +14,27 @@ class SermonListSerializer(serializers.ModelSerializer):
     audio_display_url = serializers.SerializerMethodField()
     video_display_url = serializers.SerializerMethodField()
     document_display_url = serializers.SerializerMethodField()
+    
+    # Champs dynamiques pour la traduction
+    title = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
 
     class Meta:
         model = Sermon
         fields = (
             "id",
             "title",
+            "title_fr",
+            "title_en",
             "content_type",
             "slug",
             "description",
+            "description_fr",
+            "description_en",
             "preacher_name",
             "category",
             "category_name",
-            "language",
+            "language_primary",
             "image",
             "image_url",
             "video_url",
@@ -43,6 +51,18 @@ class SermonListSerializer(serializers.ModelSerializer):
             "duration_minutes",
             "views_count",
         )
+
+    def get_title(self, obj):
+        lang = self.context.get('request').query_params.get('language', 'fr') if self.context.get('request') else 'fr'
+        if lang == 'en' and obj.title_en:
+            return obj.title_en
+        return obj.title_fr or obj.title
+
+    def get_description(self, obj):
+        lang = self.context.get('request').query_params.get('language', 'fr') if self.context.get('request') else 'fr'
+        if lang == 'en' and obj.description_en:
+            return obj.description_en
+        return obj.description_fr or obj.description
 
     def _get_absolute_url(self, file_field):
         if not file_field:

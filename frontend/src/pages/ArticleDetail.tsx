@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 const ArticleDetail = () => {
     const { id } = useParams();
     const { t, i18n } = useTranslation();
+    const lang = (i18n.language || "fr").split('-')[0].toLowerCase();
     const { scrollYProgress } = useScroll();
     const scaleX = useSpring(scrollYProgress, {
         stiffness: 100,
@@ -78,55 +79,70 @@ const ArticleDetail = () => {
                 style={{ scaleX }}
             />
 
-            <main className="pb-20 pt-16 md:pt-20">
-                {/* 🏷️ Article Hero */}
-                <div className="container mx-auto px-4 mb-8 md:mb-16">
-                    <div className="relative h-[50vh] md:h-[70vh] w-full overflow-hidden rounded-[2.5rem] shadow-2xl group">
+            <main className="pb-20">
+                {/* 🏷️ Article Hero - Edge-to-Edge Style like News Listing */}
+                <section className="relative h-[80vh] min-h-[600px] w-full overflow-hidden bg-slate-950">
+                    {/* Background Layer */}
+                    <div className="absolute inset-0">
                         {article.image_display ? (
-                            <div className="absolute inset-0">
+                            <motion.div 
+                                initial={{ scale: 1.1, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                transition={{ duration: 1.5 }}
+                                className="h-full w-full"
+                            >
                                 <img
                                     src={article.image_display}
                                     alt={article.title}
-                                    className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-105"
+                                    className="w-full h-full object-cover"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-transparent" />
-                            </div>
+                                {/* Overlay Gradients for Premium Look & Readability */}
+                                <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+                                <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-transparent" />
+                            </motion.div>
                         ) : (
                             <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900" />
                         )}
+                    </div>
 
-                        <div className="absolute inset-x-0 bottom-0 p-8 md:p-16">
+                    {/* Content Overlay */}
+                    <div className="container relative h-full flex flex-col px-6 lg:px-12 z-20 mx-auto">
+                        {/* Security Spacer for Header */}
+                        <div className="h-32 md:h-48 shrink-0" />
+
+                        <div className="flex-1 flex flex-col justify-center">
                             <motion.div
                                 initial={{ opacity: 0, y: 30 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.6 }}
+                                transition={{ delay: 0.5, duration: 0.8 }}
                                 className="space-y-6 max-w-4xl"
                             >
                                 <div className="flex flex-wrap items-center gap-3">
-                                    <Badge className="bg-primary hover:bg-primary/90 text-white border-none px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg shadow-primary/20">
+                                    <Badge className="bg-primary text-white border-none px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20">
                                         {article.category_display || article.category}
                                     </Badge>
-                                    <div className="flex items-center gap-2 text-white/90 text-sm font-bold backdrop-blur-md bg-white/10 px-4 py-1.5 rounded-full border border-white/20">
-                                        <Clock className="h-4 w-4 text-primary-200" />
+                                    <div className="flex items-center gap-2 text-white/90 text-[10px] font-black uppercase tracking-[0.2em] backdrop-blur-md bg-white/10 px-4 py-1.5 rounded-xl border border-white/20">
+                                        <Clock className="h-4 w-4 text-primary" />
                                         <span>{t('read_time', '5 min de lecture')}</span>
                                     </div>
                                 </div>
-                                <h1 className="text-3xl md:text-5xl lg:text-6xl font-heading font-bold text-white tracking-tight leading-[1.05] drop-shadow-md">
-                                    {article.title}
+                                <h1 className="text-3xl md:text-5xl lg:text-7xl font-heading font-black text-white leading-[1.05] tracking-tight drop-shadow-2xl">
+                                    {article[`title_${lang}`] || article.title}
                                 </h1>
                                 <div className="flex flex-wrap items-center gap-6 pt-6 border-t border-white/10">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 overflow-hidden">
+                                        <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 overflow-hidden">
                                             <div className="w-full h-full bg-primary/20 flex items-center justify-center">
                                                 <User className="h-6 w-6 text-white" />
                                             </div>
                                         </div>
                                         <div>
-                                            <p className="text-white font-bold text-sm">{t('diocese_of_makamba', 'Diocèse de Makamba')}</p>
-                                            <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest">{t('official_comm', 'Communication Officielle')}</p>
+                                            <p className="text-white font-black text-sm uppercase tracking-wider">{t('diocese_of_makamba', 'Diocèse de Makamba')}</p>
+                                            <p className="text-white/40 text-[9px] font-black uppercase tracking-[0.3em]">{t('official_comm', 'Communication Officielle')}</p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-2 text-white/90 font-bold text-sm">
+                                    <div className="flex items-center gap-2 text-white/90 font-black text-sm uppercase tracking-widest">
                                         <Calendar className="h-5 w-5 text-primary" />
                                         <span>{new Date(article.created_at).toLocaleDateString(i18n.language, { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                                     </div>
@@ -134,7 +150,7 @@ const ArticleDetail = () => {
                             </motion.div>
                         </div>
                     </div>
-                </div>
+                </section>
 
                 <div className="container mx-auto max-w-6xl px-4 mt-8">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
@@ -149,7 +165,7 @@ const ArticleDetail = () => {
                                 <div className="absolute top-0 left-12 w-1 h-20 bg-primary/20 rounded-b-full hidden md:block" />
                                 <div className="prose prose-lg max-w-none prose-slate prose-headings:font-heading prose-headings:font-bold prose-p:font-body prose-p:text-slate-600 prose-p:leading-[1.9] prose-p:text-lg">
                                     {/* Formatage intelligent du texte pour simuler un article riche */}
-                                    {article.content.split(/\n\s*\n/).map((paragraph: string, idx: number) => (
+                                    {(article[`content_${lang}`] || article.content).split(/\n\s*\n/).map((paragraph: string, idx: number) => (
                                         <p key={idx} className={idx === 0
                                             ? "text-xl md:text-2xl font-medium text-slate-800 border-l-8 border-primary pl-8 py-4 mb-10 bg-primary/5 rounded-r-3xl leading-relaxed first-letter:text-6xl first-letter:font-bold first-letter:mr-4 first-letter:float-left first-letter:text-primary first-letter:mt-2"
                                             : "mb-8 text-slate-600 hover:text-slate-900 transition-colors"}>
@@ -252,13 +268,13 @@ const ArticleDetail = () => {
                                         <ChevronLeft className="h-6 w-6" />
                                     </div>
                                     <div className="flex-1">
-                                        <p className="text-xs font-bold text-slate-400 uppercase">Retour</p>
-                                        <p className="font-heading font-bold text-slate-900">Voir toutes les actualités</p>
+                                        <p className="text-xs font-bold text-slate-400 uppercase">{t('back', 'Retour')}</p>
+                                        <p className="font-heading font-bold text-slate-900">{t('view_all_news', 'Voir toutes les actualités')}</p>
                                     </div>
                                     <ArrowRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" />
                                 </Link>
 
-                                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 text-center pt-6">Continuer la lecture</p>
+                                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 text-center pt-6">{t('continue_reading', 'Continuer la lecture')}</p>
                                 <Link to="/" className="flex items-center gap-4 p-4 rounded-2xl hover:bg-white hover:shadow-lg transition-all border border-transparent hover:border-slate-100 group opacity-70 grayscale hover:opacity-100 hover:grayscale-0">
                                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors">
                                         <User className="h-6 w-6" />

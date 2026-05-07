@@ -68,17 +68,30 @@ const AdminMinistries = () => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
         const cleanedFormData = new FormData();
+        
         formData.forEach((value, key) => {
-            if (value instanceof File && value.size === 0) return;
-            if (value === "" || value === "null" || value === "undefined") return;
+            if (value === "null" || value === "undefined") return;
+
+            if (value instanceof File) {
+                if (value.size > 0) {
+                    cleanedFormData.append(key, value);
+                }
+                return;
+            }
+
+            // Avoid sending empty strings for image fields
+            const isImageField = key.endsWith('_image') || key.endsWith('_photo') || key === 'image';
+            if (isImageField && value === "") return;
+
             cleanedFormData.append(key, value);
         });
+        
         saveMutation.mutate({ data: cleanedFormData, id: editingItem?.id });
     };
 
     const displayMinistries = Array.isArray(ministries) ? ministries : (ministries?.results || []);
     const filteredMinistries = displayMinistries.filter((m: any) =>
-        (m[`title_${activeLang}`] || m.title_fr)?.toLowerCase().includes(searchQuery.toLowerCase())
+        (m[`title_${activeLang}`] || m.title_fr || "")?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     if (isLoading) return (
@@ -134,30 +147,30 @@ const AdminMinistries = () => {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                             <div className="space-y-6">
                                                 <div className="space-y-2">
-                                                    <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                                                    <label htmlFor={`title_${activeLang}`} className="text-sm font-bold text-slate-700 flex items-center gap-2 cursor-pointer">
                                                         <div className="w-1.5 h-1.5 rounded-full bg-blue-500" /> Nom du Ministère ({activeLang})
                                                     </label>
-                                                    <Input name={`title_${activeLang}`} defaultValue={editingItem?.[`title_${activeLang}`]} required className="rounded-xl h-12 bg-slate-50 border-slate-200" />
+                                                    <Input id={`title_${activeLang}`} name={`title_${activeLang}`} defaultValue={editingItem?.[`title_${activeLang}`]} required className="rounded-xl h-12 bg-slate-50 border-slate-200" />
                                                 </div>
                                                 <div className="space-y-2">
-                                                    <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                                                    <label htmlFor={`mission_${activeLang}`} className="text-sm font-bold text-slate-700 flex items-center gap-2 cursor-pointer">
                                                          <div className="w-1.5 h-1.5 rounded-full bg-blue-500" /> Mission & Description ({activeLang})
                                                     </label>
-                                                    <Textarea name={`mission_${activeLang}`} defaultValue={editingItem?.[`mission_${activeLang}`]} required className="rounded-xl min-h-[120px] bg-slate-50 border-slate-200" />
+                                                    <Textarea id={`mission_${activeLang}`} name={`mission_${activeLang}`} defaultValue={editingItem?.[`mission_${activeLang}`]} required className="rounded-xl min-h-[120px] bg-slate-50 border-slate-200" />
                                                 </div>
                                                 <div className="grid grid-cols-2 gap-4">
                                                     <div className="space-y-2">
-                                                        <label className="text-sm font-bold text-slate-700">Icône (Lucide)</label>
-                                                        <Input name="icon" defaultValue={editingItem?.icon || "Users"} required className="rounded-xl h-11 bg-slate-50 border-slate-200" />
+                                                        <label htmlFor="icon" className="text-sm font-bold text-slate-700 cursor-pointer">Icône (Lucide)</label>
+                                                        <Input id="icon" name="icon" defaultValue={editingItem?.icon || "Users"} required className="rounded-xl h-11 bg-slate-50 border-slate-200" />
                                                     </div>
                                                     <div className="space-y-2">
-                                                        <label className="text-sm font-bold text-slate-700">Ordre d'affichage</label>
-                                                        <Input name="order" type="number" defaultValue={editingItem?.order || 0} className="rounded-xl h-11 bg-slate-50 border-slate-200" />
+                                                        <label htmlFor="order" className="text-sm font-bold text-slate-700 cursor-pointer">Ordre d'affichage</label>
+                                                        <Input id="order" name="order" type="number" defaultValue={editingItem?.order || 0} className="rounded-xl h-11 bg-slate-50 border-slate-200" />
                                                     </div>
                                                 </div>
                                             </div>
                                             <div className="space-y-6">
-                                                <label className="text-sm font-bold text-slate-700">Image illustrative</label>
+                                                <label htmlFor="image" className="text-sm font-bold text-slate-700 cursor-pointer">Image illustrative</label>
                                                 <ImageFieldWithPreview fieldName="image" currentImageUrl={editingItem?.image_display} label="Miniature" />
                                             </div>
                                         </div>
@@ -166,15 +179,24 @@ const AdminMinistries = () => {
                                             <h4 className="font-bold text-slate-900 border-b border-slate-100 pb-2">Témoignage ({activeLang})</h4>
                                             <div className="space-y-4">
                                                 <div className="space-y-2">
-                                                    <label className="text-xs font-bold text-slate-500 tracking-wider uppercase">Citation</label>
-                                                    <Textarea name={`testimony_quote_${activeLang}`} defaultValue={editingItem?.[`testimony_quote_${activeLang}`]} className="rounded-xl bg-white border-slate-200 italic" />
+                                                    <label htmlFor={`testimony_quote_${activeLang}`} className="text-xs font-bold text-slate-500 tracking-wider uppercase cursor-pointer">Citation</label>
+                                                    <Textarea id={`testimony_quote_${activeLang}`} name={`testimony_quote_${activeLang}`} defaultValue={editingItem?.[`testimony_quote_${activeLang}`]} className="rounded-xl bg-white border-slate-200 italic" />
                                                 </div>
                                                 <div className="space-y-2">
-                                                    <label className="text-xs font-bold text-slate-500 tracking-wider uppercase">Auteur</label>
-                                                    <Input name="testimony_author" defaultValue={editingItem?.testimony_author} className="rounded-xl h-11 bg-white border-slate-200" />
+                                                    <label htmlFor="testimony_author" className="text-xs font-bold text-slate-500 tracking-wider uppercase cursor-pointer">Auteur</label>
+                                                    <Input id="testimony_author" name="testimony_author" defaultValue={editingItem?.testimony_author} className="rounded-xl h-11 bg-white border-slate-200" />
                                                 </div>
                                             </div>
                                         </div>
+
+                                        {/* Hidden fields for other language to prevent data loss during tab switching */}
+                                        {['fr', 'en'].filter(l => l !== activeLang).map(l => (
+                                            <div key={l} className="hidden">
+                                                <Input name={`title_${l}`} defaultValue={editingItem?.[`title_${l}`] || ""} />
+                                                <Textarea name={`mission_${l}`} defaultValue={editingItem?.[`mission_${l}`] || ""} />
+                                                <Textarea name={`testimony_quote_${l}`} defaultValue={editingItem?.[`testimony_quote_${l}`] || ""} />
+                                            </div>
+                                        ))}
                                     </div>
 
                                     <div className="p-8 bg-slate-50 border-t border-slate-100">
@@ -193,89 +215,97 @@ const AdminMinistries = () => {
 
                 <MinistryIntroManager activeLang={activeLang} />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <AnimatePresence>
-                        {filteredMinistries?.map((ministry: any) => {
-                            const mTitle = ministry[`title_${activeLang}`] || ministry.title_fr || "Sans titre";
-                            const mMission = ministry[`mission_${activeLang}`] || ministry.mission_fr || "Aucune description";
-                            return (
-                                <motion.div key={ministry.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                                    <Card className="group h-full rounded-[2.5rem] border-slate-200/60 shadow-xl shadow-slate-200/20 hover:shadow-2xl hover:shadow-blue-200/30 transition-all duration-500 overflow-hidden bg-white flex flex-col border-none ring-1 ring-slate-200/40 hover:ring-blue-200">
-                                        <div className="h-32 bg-gradient-to-br from-slate-100 to-white relative p-8 pb-0">
-                                            <div className="flex items-start justify-between">
-                                                <div className="flex items-center gap-5">
-                                                    {ministry.image_display ? (
-                                                        <img src={ministry.image_display} alt="thumb" className="h-20 w-20 rounded-[1.5rem] object-cover border-4 border-white shadow-xl bg-blue-50 transform group-hover:scale-110 transition-transform duration-500" />
-                                                    ) : (
-                                                        <div className="bg-blue-600 p-6 rounded-[1.5rem] text-white shadow-xl shadow-blue-200 group-hover:rotate-12 transition-transform duration-500">
-                                                            <Sprout className="h-8 w-8" />
+                {filteredMinistries.length === 0 ? (
+                    <Card className="rounded-[2rem] border-dashed border-2 border-slate-200 p-20 text-center bg-slate-50/50">
+                        <Users className="h-16 w-16 text-slate-300 mx-auto mb-4" />
+                        <h3 className="text-xl font-heading font-bold text-slate-400">Aucun ministère trouvé</h3>
+                        <p className="text-slate-400 mt-2 font-body">Ajoutez votre premier ministère pour le voir apparaître ici.</p>
+                    </Card>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <AnimatePresence>
+                            {filteredMinistries?.map((ministry: any) => {
+                                const mTitle = ministry[`title_${activeLang}`] || ministry.title_fr || "Sans titre";
+                                const mMission = ministry[`mission_${activeLang}`] || ministry.mission_fr || "Aucune description";
+                                return (
+                                    <motion.div key={ministry.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                                        <Card className="group h-full rounded-[2.5rem] border-slate-200/60 shadow-xl shadow-slate-200/20 hover:shadow-2xl hover:shadow-blue-200/30 transition-all duration-500 overflow-hidden bg-white flex flex-col border-none ring-1 ring-slate-200/40 hover:ring-blue-200">
+                                            <div className="h-32 bg-gradient-to-br from-slate-100 to-white relative p-8 pb-0">
+                                                <div className="flex items-start justify-between">
+                                                    <div className="flex items-center gap-5">
+                                                        {ministry.image_display ? (
+                                                            <img src={ministry.image_display} alt="thumb" className="h-20 w-20 rounded-[1.5rem] object-cover border-4 border-white shadow-xl bg-blue-50 transform group-hover:scale-110 transition-transform duration-500" />
+                                                        ) : (
+                                                            <div className="bg-blue-600 p-6 rounded-[1.5rem] text-white shadow-xl shadow-blue-200 group-hover:rotate-12 transition-transform duration-500">
+                                                                <Sprout className="h-8 w-8" />
+                                                            </div>
+                                                        )}
+                                                        <div>
+                                                            <CardTitle className="text-2xl font-heading font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{mTitle}</CardTitle>
+                                                            <CardDescription className="flex items-center gap-2 mt-1 text-slate-400 font-bold bg-slate-100 rounded-full px-3 py-1 w-fit">
+                                                                <Activity className="h-3.5 w-3.5 text-blue-500" /> {ministry.activities?.length || 0} activités
+                                                            </CardDescription>
                                                         </div>
-                                                    )}
-                                                    <div>
-                                                        <CardTitle className="text-2xl font-heading font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{mTitle}</CardTitle>
-                                                        <CardDescription className="flex items-center gap-2 mt-1 text-slate-400 font-bold bg-slate-100 rounded-full px-3 py-1 w-fit">
-                                                            <Activity className="h-3.5 w-3.5 text-blue-500" /> {ministry.activities?.length || 0} activités
-                                                        </CardDescription>
+                                                    </div>
+                                                    <div className="flex items-center gap-2 translate-y-[-10px]">
+                                                        <Button variant="outline" size="icon" onClick={() => setEditingItem(ministry)} className="h-10 w-10 rounded-full bg-white border-slate-100 text-slate-400 hover:text-blue-600 hover:border-blue-200 hover:shadow-md transition-all">
+                                                            <Edit className="h-4.5 w-4.5" />
+                                                        </Button>
+                                                        <Button variant="outline" size="icon" onClick={() => { if (confirm("Supprimer ?")) deleteMutation.mutate(ministry.id); }} className="h-10 w-10 rounded-full bg-white border-slate-100 text-slate-400 hover:text-rose-600 hover:border-rose-200 hover:shadow-md transition-all">
+                                                            <Trash2 className="h-4.5 w-4.5" />
+                                                        </Button>
                                                     </div>
                                                 </div>
-                                                <div className="flex items-center gap-2 translate-y-[-10px]">
-                                                    <Button variant="outline" size="icon" onClick={() => setEditingItem(ministry)} className="h-10 w-10 rounded-full bg-white border-slate-100 text-slate-400 hover:text-blue-600 hover:border-blue-200 hover:shadow-md transition-all">
-                                                        <Edit className="h-4.5 w-4.5" />
-                                                    </Button>
-                                                    <Button variant="outline" size="icon" onClick={() => { if (confirm("Supprimer ?")) deleteMutation.mutate(ministry.id); }} className="h-10 w-10 rounded-full bg-white border-slate-100 text-slate-400 hover:text-rose-600 hover:border-rose-200 hover:shadow-md transition-all">
-                                                        <Trash2 className="h-4.5 w-4.5" />
-                                                    </Button>
-                                                </div>
                                             </div>
-                                        </div>
-                                        <CardContent className="p-8 pt-10 flex-grow space-y-6">
-                                            <p className="text-slate-500 font-medium font-body leading-relaxed line-clamp-3 text-lg">
-                                                {mMission}
-                                            </p>
+                                            <CardContent className="p-8 pt-10 flex-grow space-y-6">
+                                                <p className="text-slate-500 font-medium font-body leading-relaxed line-clamp-3 text-lg">
+                                                    {mMission}
+                                                </p>
 
-                                            <div className="pt-6 border-t border-slate-100">
-                                                <div className="flex items-center justify-between mb-4">
-                                                    <h4 className="text-sm font-bold text-slate-400 tracking-widest uppercase flex items-center gap-2">
-                                                        <Activity className="h-4 w-4 text-blue-500" /> Activités ({activeLang})
-                                                    </h4>
-                                                    <Button
-                                                        variant="ghost" size="sm" className="h-8 rounded-lg text-blue-600 hover:bg-blue-50 text-xs font-bold"
-                                                        onClick={() => {
-                                                            const title = prompt(`Titre de l'activité (${activeLang}) :`);
-                                                            if (title) {
-                                                                const payload: any = {};
-                                                                payload[`title_${activeLang}`] = title;
-                                                                api.post(`/api/ministries/${ministry.id}/activities/`, payload).then(() => {
-                                                                    queryClient.invalidateQueries({ queryKey: ["admin-ministries"] });
-                                                                    toast.success("Activité ajoutée");
-                                                                });
-                                                            }
-                                                        }}
-                                                    >
-                                                        <Plus className="h-3.5 w-3.5 mr-1" /> Ajouter
-                                                    </Button>
+                                                <div className="pt-6 border-t border-slate-100">
+                                                    <div className="flex items-center justify-between mb-4">
+                                                        <h4 className="text-sm font-bold text-slate-400 tracking-widest uppercase flex items-center gap-2">
+                                                            <Activity className="h-4 w-4 text-blue-500" /> Activités ({activeLang})
+                                                        </h4>
+                                                        <Button
+                                                            variant="ghost" size="sm" className="h-8 rounded-lg text-blue-600 hover:bg-blue-50 text-xs font-bold"
+                                                            onClick={() => {
+                                                                const title = prompt(`Titre de l'activité (${activeLang}) :`);
+                                                                if (title) {
+                                                                    const payload: any = {};
+                                                                    payload[`title_${activeLang}`] = title;
+                                                                    api.post(`/api/ministries/${ministry.id}/activities/`, payload).then(() => {
+                                                                        queryClient.invalidateQueries({ queryKey: ["admin-ministries"] });
+                                                                        toast.success("Activité ajoutée");
+                                                                    });
+                                                                }
+                                                            }}
+                                                        >
+                                                            <Plus className="h-3.5 w-3.5 mr-1" /> Ajouter
+                                                        </Button>
+                                                    </div>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {ministry.activities?.map((act: any) => (
+                                                            <div key={act.id} className="flex items-center gap-2 px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl group/item pr-2 hover:bg-white hover:border-blue-200 transition-all">
+                                                                <span className="text-slate-600 text-sm font-bold">{act[`title_${activeLang}`] || act.title_fr}</span>
+                                                                <button 
+                                                                    onClick={async () => { if (confirm("Supprimer ?")) { await api.delete(`/api/ministries/activities/${act.id}/`); queryClient.invalidateQueries({ queryKey: ["admin-ministries"] }); } }}
+                                                                    className="h-6 w-6 rounded-md hover:bg-rose-50 text-slate-300 hover:text-rose-600 transition-colors flex items-center justify-center"
+                                                                >
+                                                                    <Trash2 className="h-3 w-3" />
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
                                                 </div>
-                                                <div className="flex flex-wrap gap-2">
-                                                    {ministry.activities?.map((act: any) => (
-                                                        <div key={act.id} className="flex items-center gap-2 px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl group/item pr-2 hover:bg-white hover:border-blue-200 transition-all">
-                                                            <span className="text-slate-600 text-sm font-bold">{act[`title_${activeLang}`] || act.title_fr}</span>
-                                                            <button 
-                                                                onClick={async () => { if (confirm("Supprimer ?")) { await api.delete(`/api/ministries/activities/${act.id}/`); queryClient.invalidateQueries({ queryKey: ["admin-ministries"] }); } }}
-                                                                className="h-6 w-6 rounded-md hover:bg-rose-50 text-slate-300 hover:text-rose-600 transition-colors flex items-center justify-center"
-                                                            >
-                                                                <Trash2 className="h-3 w-3" />
-                                                            </button>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </motion.div>
-                            );
-                        })}
-                    </AnimatePresence>
-                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+                                );
+                            })}
+                        </AnimatePresence>
+                    </div>
+                )}
             </div>
         </AdminLayout>
     );

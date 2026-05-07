@@ -7,15 +7,10 @@ import { useTranslation } from "react-i18next";
 const Footer = () => {
   const { data: settings } = useSiteSettings();
   const { t, i18n } = useTranslation();
+  // Normaliser la langue (ex: 'fr-FR' devient 'fr') pour correspondre aux clés de l'admin
+  const lang = (i18n.language || "fr").split('-')[0].toLowerCase();
 
-  // Helper to remove HTML tags from description if present
-  const stripHtml = (html: string) => {
-    const tmp = document.createElement("DIV");
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || "";
-  };
-
-  const description = settings?.[`footer_description_${i18n.language}`] || settings?.footer_description_fr || t('footer_description_default');
+  const description = settings?.[`footer_description_${lang}`] || settings?.footer_description_fr || t('footer_description_default');
 
   return (
     <footer className="relative bg-[#020617] text-white pt-32 pb-12 overflow-hidden">
@@ -93,10 +88,9 @@ const Footer = () => {
             <ul className="space-y-5">
               {[
                 { label: 'nav_home', h: '/' },
-                { label: 'nav_diocese', h: '/diocese' },
-                { label: 'nav_parishes', h: '/paroisses' },
-                { label: 'nav_ministries', h: '/ministeres' },
-                { label: 'nav_news', h: '/actualites' }
+                { label: 'nav_diocese', h: '/a-propos' },
+                { label: 'nav_news', h: '/actualites' },
+                { label: 'nav_contact', h: '/contact' }
               ].map((link, i) => (
                 <li key={i}>
                   <Link to={link.h} className="group flex items-center text-slate-400 hover:text-white transition-all duration-300">
@@ -116,13 +110,13 @@ const Footer = () => {
           <div className="lg:pt-4">
             <h4 className="font-heading text-[13px] font-black uppercase tracking-[0.3em] text-slate-500 mb-10 flex items-center gap-4">
               <div className="w-2 h-2 bg-accent rounded-full" />
-              {t('nav_resources', 'RESSOURCES')}
+              {t('nav_news', 'ACTUALITÉS')}
             </h4>
             <ul className="space-y-5">
               {[
-                { label: 'nav_resources', h: '/ressources' },
+                { label: 'nav_news', h: '/actualites' },
                 { label: 'nav_contact', h: '/contact' },
-                { label: 'nav_diocese', h: '/diocese' }
+                { label: 'nav_diocese', h: '/a-propos' }
               ].map((link, i) => (
                 <li key={i}>
                   <Link to={link.h} className="group flex items-center text-slate-400 hover:text-white transition-all duration-300">
@@ -194,7 +188,7 @@ const Footer = () => {
         <div className="mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex flex-col items-center md:items-start gap-2">
             <p className="font-body text-[13px] text-slate-600 font-medium">
-              © 2026 Diocèse Makamba. Tous droits réservés.
+              {t('footer_copyright', '© 2026 Diocèse Makamba. Tous droits réservés.')}
             </p>
           </div>
 

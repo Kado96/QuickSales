@@ -43,10 +43,42 @@ const Ressources = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <PageHero
-        title={t('nav_resources', "Ressources")}
-        subtitle={t('nav_resources_desc', "Découvrez nos enseignements, prédications et documents utiles mis à jour par le diocèse.")}
-      />
+      {/* --- HERO SECTION PREMIUM (IMAGE FIXE) --- */}
+      <section className="relative h-[60vh] min-h-[450px] w-full overflow-hidden bg-slate-950">
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=1973&auto=format&fit=crop"
+            alt="Ressources Diocésaines"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent" />
+        </div>
+
+        <div className="container relative h-full flex flex-col px-6 lg:px-12 z-20">
+          <div className="h-32 md:h-40 shrink-0" />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="flex-1 flex flex-col justify-center space-y-4 md:space-y-6 pb-12"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-white/60 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Makamba
+              </span>
+            </div>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-black text-white leading-[1.1] tracking-tight drop-shadow-xl max-w-3xl">
+              {t('nav_resources', "Ressources")}
+            </h1>
+            <p className="text-base md:text-lg text-white/80 font-light leading-relaxed max-w-2xl drop-shadow-md">
+              {t('nav_resources_desc', "Découvrez nos enseignements, prédications et documents utiles mis à jour par le diocèse.")}
+            </p>
+          </motion.div>
+        </div>
+      </section>
       <main className="pb-20">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">

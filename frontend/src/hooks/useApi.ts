@@ -17,6 +17,7 @@ import {
     fetchVisionValues,
     fetchTeamMembers,
     fetchDiocesePresentation,
+    fetchParoissesPresentation,
 } from '@/lib/api';
 import type {
     Announcement,
@@ -32,6 +33,8 @@ import type {
     VisionValue,
     TeamMember,
     DiocesePresentation,
+    ParoissesPresentation,
+    PaginatedResponse,
 } from '@/lib/types';
 
 /** Images par défaut pour les actualités/témoignages */
@@ -46,7 +49,7 @@ export const FALLBACK_IMAGES = [
  */
 export function useAnnouncements() {
     const { i18n } = useTranslation();
-    const lang = i18n.language || 'fr';
+    const lang = (i18n.language || 'fr').split('-')[0].toLowerCase();
     return useQuery<Announcement[]>({
         queryKey: ['announcements', lang],
         queryFn: async () => {
@@ -63,7 +66,7 @@ export function useAnnouncements() {
  */
 export function useTestimonials() {
     const { i18n } = useTranslation();
-    const lang = i18n.language || 'fr';
+    const lang = (i18n.language || 'fr').split('-')[0].toLowerCase();
     return useQuery<Testimonial[]>({
         queryKey: ['testimonials', lang],
         queryFn: async () => {
@@ -79,7 +82,7 @@ export function useTestimonials() {
  */
 export function useSermons() {
     const { i18n } = useTranslation();
-    const lang = i18n.language || 'fr';
+    const lang = (i18n.language || 'fr').split('-')[0].toLowerCase();
     return useQuery<Sermon[]>({
         queryKey: ['sermons', lang],
         queryFn: async () => {
@@ -109,7 +112,7 @@ export function useSermonCategories() {
  */
 export function useSiteSettings() {
     const { i18n } = useTranslation();
-    const lang = i18n.language || 'fr';
+    const lang = (i18n.language || 'fr').split('-')[0].toLowerCase();
     return useQuery<SiteSettings>({
         queryKey: ['site-settings', lang],
         queryFn: async () => {
@@ -171,7 +174,7 @@ export function useMinistryPage() {
  */
 export function useTimeline() {
     const { i18n } = useTranslation();
-    const lang = i18n.language || 'fr';
+    const lang = (i18n.language || 'fr').split('-')[0].toLowerCase();
     return useQuery<TimelineEvent[]>({
         queryKey: ['timeline', lang],
         queryFn: async () => {
@@ -187,7 +190,7 @@ export function useTimeline() {
  */
 export function useMissionAxes() {
     const { i18n } = useTranslation();
-    const lang = i18n.language || 'fr';
+    const lang = (i18n.language || 'fr').split('-')[0].toLowerCase();
     return useQuery<MissionAxe[]>({
         queryKey: ['mission-axes', lang],
         queryFn: async () => {
@@ -203,7 +206,7 @@ export function useMissionAxes() {
  */
 export function useVisionValues() {
     const { i18n } = useTranslation();
-    const lang = i18n.language || 'fr';
+    const lang = (i18n.language || 'fr').split('-')[0].toLowerCase();
     return useQuery<VisionValue[]>({
         queryKey: ['vision-values', lang],
         queryFn: async () => {
@@ -219,7 +222,7 @@ export function useVisionValues() {
  */
 export function useTeamMembers() {
     const { i18n } = useTranslation();
-    const lang = i18n.language || 'fr';
+    const lang = (i18n.language || 'fr').split('-')[0].toLowerCase();
     return useQuery<TeamMember[]>({
         queryKey: ['team-members', lang],
         queryFn: async () => {
@@ -235,11 +238,27 @@ export function useTeamMembers() {
  */
 export function useDiocesePresentation() {
     const { i18n } = useTranslation();
-    const lang = i18n.language || 'fr';
+    const lang = (i18n.language || 'fr').split('-')[0].toLowerCase();
     return useQuery<DiocesePresentation[]>({
         queryKey: ['diocese-presentation', lang],
         queryFn: async () => {
             const data = await fetchDiocesePresentation(lang);
+            return data ?? [];
+        },
+        staleTime: 1000,
+    });
+}
+
+/**
+ * Hook pour la présentation de la page paroisses
+ */
+export function useParoissesPresentation() {
+    const { i18n } = useTranslation();
+    const lang = (i18n.language || 'fr').split('-')[0].toLowerCase();
+    return useQuery<ParoissesPresentation[]>({
+        queryKey: ['paroisses-presentation', lang],
+        queryFn: async () => {
+            const data = await fetchParoissesPresentation(lang);
             return data ?? [];
         },
         staleTime: 1000,
