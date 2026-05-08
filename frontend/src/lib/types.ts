@@ -279,15 +279,19 @@ export interface TeamMember {
 export interface Comment {
     id: number;
     announcement: number;
+    parent: number | null;
     author_name: string;
     author_email: string;
     content: string;
+    likes: number;
     is_approved: boolean;
     is_admin: boolean;
     user_role: string;
+    replies_count: number;
     created_at: string;
     updated_at: string;
 }
+
 
 /** Réponse paginée de l'API DRF */
 export interface PaginatedResponse<T> {

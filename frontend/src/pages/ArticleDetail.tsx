@@ -1,25 +1,24 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { motion, useScroll, useSpring } from "framer-motion";
+import { motion, useScroll, useSpring, AnimatePresence } from "framer-motion";
 import {
     Calendar,
-    Tag,
     ChevronLeft,
     Share2,
     MessageCircle,
     Clock,
     Loader2,
-    ArrowRight,
     Megaphone,
     Send,
     Shield,
     ThumbsUp,
-    MoreHorizontal
+    MoreHorizontal,
+    CornerDownRight
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { api, fetchComments, postComment } from "@/lib/api";
+import { api, fetchComments, postComment, likeComment } from "@/lib/api";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -32,18 +31,16 @@ const ArticleDetail = () => {
     const queryClient = useQueryClient();
     const commentsRef = useRef<HTMLDivElement>(null);
     const { scrollYProgress } = useScroll();
-    const scaleX = useSpring(scrollYProgress, {
-        stiffness: 100,
-        damping: 30,
-        restDelta: 0.001
-    });
+    const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
 
-    // ─── ÉTAT COMMENTAIRES ───
-    const [commentName, setCommentName] = useState('');
-    const [commentEmail, setCommentEmail] = useState('');
+    // ─── ÉTAT ───
+    const [commentName, setCommentName] = useState(localStorage.getItem('comment_author_name') || '');
+    const [commentEmail, setCommentEmail] = useState(localStorage.getItem('comment_author_email') || '');
     const [commentContent, setCommentContent] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [replyingTo, setReplyingTo] = useState<number | null>(null);
+    const [likedComments, setLikedComments] = useState<number[]>(JSON.parse(localStorage.getItem('liked_comments') || '[]'));
 
+    // ─── QUERIES ───
     const { data: article, isLoading } = useQuery({
         queryKey: ["article", id, i18n.language],
         queryFn: async () => {
@@ -58,204 +55,210 @@ const ArticleDetail = () => {
         enabled: !!id,
     });
 
+    // ─── MUTATIONS ───
     const commentMutation = useMutation({
         mutationFn: postComment,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['comments', id] });
             setCommentContent('');
-            setIsSubmitting(false);
-        },
-        onError: () => setIsSubmitting(false)
+            setReplyingTo(null);
+            // Sauvegarder le nom pour la prochaine fois
+            localStorage.setItem('comment_author_name', commentName);
+            localStorage.setItem('comment_author_email', commentEmail);
+        }
+    });
+
+    const likeMutation = useMutation({
+        mutationFn: likeComment,
+        onSuccess: (data, commentId) => {
+            queryClient.invalidateQueries({ queryKey: ['comments', id] });
+            const newLiked = [...likedComments, commentId];
+            setLikedComments(newLiked);
+            localStorage.setItem('liked_comments', JSON.stringify(newLiked));
+        }
     });
 
     useEffect(() => {
         window.scrollTo(0, 0);
     }, [id]);
 
-    const handleSubmitComment = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!commentContent.trim() || !commentName.trim()) return;
-        setIsSubmitting(true);
-        commentMutation.mutate({
-            announcement: Number(id),
-            author_name: commentName,
-            author_email: commentEmail,
-            content: commentContent,
-        });
+    const handleActionLike = (commentId: number) => {
+        if (likedComments.includes(commentId)) return;
+        likeMutation.mutate(commentId);
     };
 
     const scrollToComments = () => {
         commentsRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
-    if (isLoading) {
-        return (
-            <div className="min-h-screen bg-slate-50 flex flex-col">
-                <Header />
-                <div className="flex-1 flex items-center justify-center">
-                    <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                </div>
-                <Footer />
-            </div>
-        );
-    }
+    const handleSubmitComment = (e: React.FormEvent, parentId: number | null = null) => {
+        e.preventDefault();
+        const content = parentId ? commentContent : commentContent; // On peut différencier si besoin
+        if (!content.trim() || !commentName.trim()) return;
+        
+        commentMutation.mutate({
+            announcement: Number(id),
+            author_name: commentName,
+            author_email: commentEmail,
+            content: content,
+            parent: parentId
+        } as any);
+    };
 
+    // ─── RENDU COMPOSANT COMMENTAIRE ───
+    const CommentItem = ({ comment, isReply = false }: { comment: Comment, isReply?: boolean }) => (
+        <motion.div 
+            initial={{ opacity: 0, x: isReply ? 20 : 0 }}
+            animate={{ opacity: 1, x: 0 }}
+            className={`flex gap-3 group ${isReply ? 'mt-4 ml-6 md:ml-12' : 'mt-6'}`} 
+            id={`comment-${comment.id}`}
+        >
+            <div className={`w-10 h-10 rounded-full shrink-0 flex items-center justify-center font-bold text-white shadow-sm ${comment.is_admin ? 'bg-indigo-600' : 'bg-slate-400'}`}>
+                {comment.author_name.charAt(0).toUpperCase()}
+            </div>
+            <div className="flex-1 min-w-0">
+                <div className="bg-slate-100 rounded-2xl px-4 py-2.5 inline-block max-w-full">
+                    <div className="flex items-center gap-2 mb-0.5">
+                        <span className="font-bold text-[13px] md:text-sm text-slate-900">{comment.author_name}</span>
+                        {comment.is_admin && (
+                            <Badge className="bg-indigo-600 h-4 px-1.5 text-[9px] uppercase tracking-tighter">
+                                <Shield className="w-2.5 h-2.5 mr-1" /> {comment.user_role || 'Admin'}
+                            </Badge>
+                        )}
+                    </div>
+                    <p className="text-[13px] md:text-sm text-slate-700 leading-snug whitespace-pre-line">{comment.content}</p>
+                </div>
+                
+                <div className="flex items-center gap-4 mt-1.5 ml-2 text-[12px] font-bold text-slate-500">
+                    <button 
+                        onClick={() => handleActionLike(comment.id)}
+                        className={`hover:underline transition-colors flex items-center gap-1 ${likedComments.includes(comment.id) ? 'text-indigo-600' : ''}`}
+                    >
+                        {likedComments.includes(comment.id) && <ThumbsUp className="h-3 w-3 fill-current" />}
+                        J'aime {comment.likes > 0 && <span>({comment.likes})</span>}
+                    </button>
+                    <button 
+                        onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
+                        className={`hover:underline ${replyingTo === comment.id ? 'text-indigo-600' : ''}`}
+                    >
+                        Répondre
+                    </button>
+                    <span className="font-normal text-slate-400">
+                        {new Date(comment.created_at).toLocaleDateString(lang, { day: 'numeric', month: 'short' })}
+                    </span>
+                </div>
+
+                {/* Formulaire de réponse (si actif) */}
+                <AnimatePresence>
+                    {replyingTo === comment.id && (
+                        <motion.div 
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="mt-4"
+                        >
+                            <form onSubmit={(e) => handleSubmitComment(e, comment.id)} className="flex gap-2">
+                                <div className="flex-1 relative">
+                                    <textarea 
+                                        autoFocus
+                                        placeholder={`Répondre à ${comment.author_name}...`}
+                                        required
+                                        rows={1}
+                                        value={commentContent}
+                                        onChange={e => setCommentContent(e.target.value)}
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500/20 resize-none"
+                                    />
+                                    <button 
+                                        type="submit" 
+                                        disabled={commentMutation.isPending || !commentContent.trim()}
+                                        className="absolute right-2 bottom-2 text-indigo-600 disabled:text-slate-300"
+                                    >
+                                        <Send className="h-4 w-4" />
+                                    </button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* Affichage des réponses imbriquées */}
+                {comments.filter(c => (c as any).parent === comment.id).map(reply => (
+                    <CommentItem key={reply.id} comment={reply} isReply={true} />
+                ))}
+            </div>
+        </motion.div>
+    );
+
+    if (isLoading) return <div className="min-h-screen bg-slate-50 flex items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-indigo-600" /></div>;
     if (!article) return null;
+
+    // On ne garde que les commentaires "racines" (ceux qui n'ont pas de parent) pour le premier niveau
+    const rootComments = comments.filter(c => !(c as any).parent);
 
     return (
         <div className="min-h-screen bg-white md:bg-slate-50">
             <Header />
-            <motion.div className="fixed top-0 left-0 right-0 h-1.5 bg-indigo-600 origin-left z-[100]" style={{ scaleX }} />
+            <motion.div className="fixed top-0 left-0 right-0 h-1 bg-indigo-600 origin-left z-[100]" style={{ scaleX }} />
 
-            {/* Hero Image */}
-            <div className="relative h-[45vh] md:h-[60vh] w-full">
-                {article.image_display && (
-                    <img src={article.image_display} alt="" className="w-full h-full object-cover" />
-                )}
-                <div className="absolute inset-0 bg-black/40" />
-                <div className="absolute bottom-0 left-0 w-full p-6 md:p-12 text-white">
-                    <div className="container mx-auto max-w-5xl">
-                        <Badge className="mb-4 bg-indigo-600">{article.category_display || article.category}</Badge>
-                        <h1 className="text-3xl md:text-5xl font-heading font-black leading-tight">
-                            {article[`title_${lang}`] || article.title}
-                        </h1>
-                    </div>
+            {/* Hero & Content (Simplifié pour la lisibilité de la réponse) */}
+            <div className="relative h-[40vh] w-full">
+                {article.image_display && <img src={article.image_display} className="w-full h-full object-cover" />}
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center p-6 text-center">
+                    <h1 className="text-3xl md:text-5xl font-heading font-black text-white">{article[`title_${lang}`] || article.title}</h1>
                 </div>
             </div>
 
-            <div className="container mx-auto max-w-5xl px-4 py-10">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-                    <div className="lg:col-span-8">
-                        {/* Article Content */}
-                        <div className="bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-slate-100 mb-8">
-                            <div className="flex items-center gap-4 text-slate-400 text-sm mb-8">
-                                <Calendar className="h-4 w-4" />
-                                <span>{new Date(article.created_at).toLocaleDateString(i18n.language)}</span>
-                                <Clock className="h-4 w-4 ml-4" />
-                                <span>5 min</span>
-                            </div>
-
-                            <div 
-                                className="prose prose-slate prose-lg max-w-none mb-12"
-                                dangerouslySetInnerHTML={{ __html: article[`content_${lang}`] || article.content }}
-                            />
-
-                            {/* Share & Comment Actions */}
-                            <div className="flex items-center justify-between pt-6 border-t border-slate-100">
-                                <Button variant="ghost" className="text-slate-500 gap-2" onClick={scrollToComments}>
-                                    <MessageCircle className="h-5 w-5" />
-                                    <span className="hidden sm:inline">Commenter</span>
-                                    {comments.length > 0 && `(${comments.length})`}
-                                </Button>
-                                <Button variant="ghost" className="text-slate-500 gap-2">
-                                    <Share2 className="h-5 w-5" />
-                                    <span className="hidden sm:inline">Partager</span>
-                                </Button>
-                            </div>
-                        </div>
-
-                        {/* 🟦 FACEBOOK STYLE COMMENTS SECTION */}
-                        <div ref={commentsRef} className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100 mb-20">
-                            <h3 className="text-lg font-bold text-slate-900 mb-8">Commentaires ({comments.length})</h3>
-
-                            {/* Comment Form (Facebook Like) */}
-                            <form onSubmit={handleSubmitComment} className="flex gap-3 mb-10">
-                                <div className="w-10 h-10 rounded-full bg-slate-200 shrink-0 flex items-center justify-center font-bold text-slate-500">
-                                    ?
-                                </div>
-                                <div className="flex-1 space-y-3">
-                                    <div className="flex flex-col md:flex-row gap-3">
-                                        <input 
-                                            type="text" 
-                                            placeholder="Votre nom"
-                                            required
-                                            value={commentName}
-                                            onChange={e => setCommentName(e.target.value)}
-                                            className="bg-slate-100 border-none rounded-full px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500/20"
-                                            name="author_name"
-                                            id="comment-author-name"
-                                        />
-                                        <input 
-                                            type="email" 
-                                            placeholder="Email (optionnel)"
-                                            value={commentEmail}
-                                            onChange={e => setCommentEmail(e.target.value)}
-                                            className="bg-slate-100 border-none rounded-full px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500/20"
-                                            name="author_email"
-                                            id="comment-author-email"
-                                        />
-                                    </div>
-                                    <div className="relative">
-                                        <textarea 
-                                            placeholder="Écrivez un commentaire..."
-                                            required
-                                            rows={2}
-                                            value={commentContent}
-                                            onChange={e => setCommentContent(e.target.value)}
-                                            className="w-full bg-slate-100 border-none rounded-2xl px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-indigo-500/20"
-                                            name="content"
-                                            id="comment-body"
-                                        />
-                                        <button 
-                                            type="submit" 
-                                            disabled={isSubmitting || !commentContent.trim()}
-                                            className="absolute right-3 bottom-3 text-indigo-600 disabled:text-slate-300 transition-colors"
-                                            id="btn-send-comment"
-                                        >
-                                            <Send className="h-5 w-5" />
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
-
-                            {/* Comments List */}
-                            <div className="space-y-6">
-                                {loadingComments ? (
-                                    <div className="flex justify-center"><Loader2 className="h-6 w-6 animate-spin text-slate-300" /></div>
-                                ) : comments.length === 0 ? (
-                                    <div className="text-center py-6 text-slate-400 text-sm italic">Aucun commentaire pour le moment.</div>
-                                ) : (
-                                    comments.map((comment: Comment) => (
-                                        <div key={comment.id} className="flex gap-3 group" id={`comment-${comment.id}`}>
-                                            <div className={`w-10 h-10 rounded-full shrink-0 flex items-center justify-center font-bold text-white ${comment.is_admin ? 'bg-indigo-600' : 'bg-slate-400'}`}>
-                                                {comment.author_name.charAt(0).toUpperCase()}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="bg-slate-100 rounded-2xl px-4 py-2 inline-block max-w-full">
-                                                    <div className="flex items-center gap-2 mb-0.5">
-                                                        <span className="font-bold text-sm text-slate-900">{comment.author_name}</span>
-                                                        {comment.is_admin && (
-                                                            <Badge className="bg-indigo-600 h-4 px-1 text-[9px] uppercase"><Shield className="w-2 h-2 mr-1" /> {comment.user_role || 'Admin'}</Badge>
-                                                        )}
-                                                    </div>
-                                                    <p className="text-sm text-slate-700 leading-snug">{comment.content}</p>
-                                                </div>
-                                                <div className="flex items-center gap-4 mt-1 ml-2 text-[12px] font-bold text-slate-500">
-                                                    <button className="hover:underline">J'aime</button>
-                                                    <button className="hover:underline">Répondre</button>
-                                                    <span className="font-normal text-slate-400">
-                                                        {new Date(comment.created_at).toLocaleDateString(lang, { day: 'numeric', month: 'short' })}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <button className="opacity-0 group-hover:opacity-100 p-2 text-slate-400 self-start">
-                                                <MoreHorizontal className="h-4 w-4" />
-                                            </button>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                        </div>
+            <div className="container mx-auto max-w-4xl px-4 py-12">
+                <div className="bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-slate-100 mb-8">
+                    <div className="prose prose-slate max-w-none mb-10" dangerouslySetInnerHTML={{ __html: article[`content_${lang}`] || article.content }} />
+                    <div className="flex gap-4 border-t pt-6">
+                        <Button variant="ghost" onClick={scrollToComments} className="gap-2 text-slate-500"><MessageCircle className="h-5 w-5" /> Commenter</Button>
+                        <Button variant="ghost" className="gap-2 text-slate-500"><Share2 className="h-5 w-5" /> Partager</Button>
                     </div>
+                </div>
 
-                    {/* Sidebar */}
-                    <div className="lg:col-span-4 space-y-8">
-                        <div className="bg-indigo-900 rounded-3xl p-8 text-white shadow-xl">
-                            <Megaphone className="h-10 w-10 mb-4 text-indigo-300" />
-                            <h3 className="text-xl font-bold mb-2">Restez informé</h3>
-                            <p className="text-indigo-100/70 text-sm mb-6">Abonnez-vous pour ne rien manquer.</p>
-                            <Button className="w-full bg-white text-indigo-900 hover:bg-white/90 rounded-xl font-bold">M'abonner</Button>
+                {/* 🟦 SECTION COMMENTAIRES FACEBOOK STYLE AVANCÉE */}
+                <div ref={commentsRef} className="bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-slate-100">
+                    <h3 className="text-lg font-bold text-slate-900 mb-8 flex items-center gap-2">
+                        <MessageCircle className="h-5 w-5 text-indigo-600" />
+                        Commentaires ({comments.length})
+                    </h3>
+
+                    {/* Formulaire Principal */}
+                    <form onSubmit={(e) => handleSubmitComment(e)} className="flex gap-3 mb-12">
+                        <div className="w-10 h-10 rounded-full bg-slate-200 shrink-0 flex items-center justify-center font-bold text-slate-400">?</div>
+                        <div className="flex-1 space-y-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <input 
+                                    placeholder="Votre nom" required value={commentName} onChange={e => setCommentName(e.target.value)}
+                                    className="bg-slate-100 border-none rounded-full px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500/20"
+                                />
+                                <input 
+                                    placeholder="Email (optionnel)" value={commentEmail} onChange={e => setCommentEmail(e.target.value)}
+                                    className="bg-slate-100 border-none rounded-full px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500/20"
+                                />
+                            </div>
+                            <div className="relative">
+                                <textarea 
+                                    placeholder="Qu'en pensez-vous ?" required rows={3} value={commentContent} onChange={e => setCommentContent(e.target.value)}
+                                    className="w-full bg-slate-100 border-none rounded-2xl px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-indigo-500/20"
+                                />
+                                <button type="submit" disabled={commentMutation.isPending || !commentContent.trim()} className="absolute right-3 bottom-3 bg-indigo-600 text-white p-2 rounded-full shadow-lg shadow-indigo-600/20 disabled:bg-slate-300">
+                                    <Send className="h-4 w-4" />
+                                </button>
+                            </div>
                         </div>
+                    </form>
+
+                    {/* Liste des Commentaires avec récursion */}
+                    <div className="space-y-2">
+                        {loadingComments ? (
+                            <div className="flex justify-center py-10"><Loader2 className="h-8 w-8 animate-spin text-slate-200" /></div>
+                        ) : rootComments.length === 0 ? (
+                            <div className="text-center py-10 text-slate-400 italic">Soyez le premier à réagir à cet article.</div>
+                        ) : (
+                            rootComments.map(comment => <CommentItem key={comment.id} comment={comment} />)
+                        )}
                     </div>
                 </div>
             </div>

@@ -7,42 +7,44 @@ class Announcement(models.Model):
         ('normale', 'Normale'),
         ('haute', 'Haute'),
     ]
-
+    
     CATEGORY_CHOICES = [
-        ('temoignages', 'Témoignages'),
-        ('evenements', 'Événements'),
-        ('nouvelles', 'Nouvelles'),
+        ('evenement', 'Événement'),
+        ('nouvelle', 'Nouvelle'),
+        ('communique', 'Communiqué'),
+        ('urgent', 'Urgent'),
     ]
-
+    
     LANGUAGE_CHOICES = [
         ('fr', 'Français'),
-        ('rn', 'Kirundi'),
-        ('en', 'English'),
-        ('sw', 'Kiswahili'),
+        ('en', 'Anglais'),
     ]
 
-    title_fr = models.CharField(max_length=255, verbose_name="Titre (FR)", default="")
-    title_en = models.CharField(max_length=255, verbose_name="Titre (EN)", default="", blank=True)
-    content_fr = models.TextField(verbose_name="Contenu (FR)", default="")
-    content_en = models.TextField(verbose_name="Contenu (EN)", default="", blank=True)
-    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='nouvelles')
-    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='normale')
+    # Anciens champs (mis en optionnel pour éviter les erreurs de migration)
+    title = models.CharField(max_length=200, blank=True, default="")
+    content = models.TextField(blank=True, default="")
     
-    # Obsolète - sera supprimé après migration
-    title = models.CharField(max_length=255, null=True, blank=True)
-    content = models.TextField(null=True, blank=True)
-    language = models.CharField(max_length=2, choices=LANGUAGE_CHOICES, default='fr', null=True, blank=True)
+    # Nouveaux champs pour la traduction
+    title_fr = models.CharField(max_length=200, verbose_name="Titre (FR)", blank=True, null=True)
+    title_en = models.CharField(max_length=200, verbose_name="Titre (EN)", blank=True, null=True)
+    content_fr = models.TextField(verbose_name="Contenu (FR)", blank=True, null=True)
+    content_en = models.TextField(verbose_name="Contenu (EN)", blank=True, null=True)
+    
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='nouvelle')
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='normale')
     event_date = models.DateField(null=True, blank=True)
-    image = models.ImageField(upload_to='announcements/', blank=True, null=True, verbose_name="Image à la une")
+    image = models.ImageField(upload_to='announcements/', null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    language = models.CharField(max_length=2, choices=LANGUAGE_CHOICES, default='fr')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['-priority', '-created_at']
 
     def __str__(self):
-        return self.title
+        return self.title_fr or self.title or "Sans titre"
+
 
 class AnnouncementImage(models.Model):
     announcement = models.ForeignKey(Announcement, related_name='gallery', on_delete=models.CASCADE)
@@ -57,14 +59,21 @@ class AnnouncementImage(models.Model):
 class Comment(models.Model):
     """
     Commentaire sur un article (Announcement).
-    - Visiteurs anonymes : remplissent author_name + author_email
-    - Administrateurs/Éditeurs connectés : liés via le champ 'user'
+    Supporte les réponses (threaded comments) et les likes.
     """
     announcement = models.ForeignKey(
         Announcement,
         related_name='comments',
         on_delete=models.CASCADE,
         verbose_name="Article"
+    )
+    parent = models.ForeignKey(
+        'self',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name='replies',
+        verbose_name="Réponse à"
     )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -76,7 +85,8 @@ class Comment(models.Model):
     author_name = models.CharField(
         max_length=100,
         verbose_name="Nom de l'auteur",
-        help_text="Rempli automatiquement si l'utilisateur est connecté"
+        blank=True,
+        default="Anonyme"
     )
     author_email = models.EmailField(
         verbose_name="Email de l'auteur",
@@ -84,18 +94,20 @@ class Comment(models.Model):
         default=""
     )
     content = models.TextField(verbose_name="Commentaire")
+    likes = models.PositiveIntegerField(default=0, verbose_name="J'aime")
+    
     is_approved = models.BooleanField(
         default=True,
-        verbose_name="Approuvé",
-        help_text="Décochez pour masquer ce commentaire"
+        verbose_name="Approuvé"
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['created_at']
         verbose_name = "Commentaire"
         verbose_name_plural = "Commentaires"
 
     def __str__(self):
-        return f"{self.author_name} - {self.announcement.title_fr[:30]}..."
+        prefix = "RE: " if self.parent else ""
+        return f"{prefix}{self.author_name} - {self.announcement.title_fr[:20] if self.announcement.title_fr else '...'}"

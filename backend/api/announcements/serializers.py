@@ -16,7 +16,6 @@ class AnnouncementSerializer(serializers.ModelSerializer):
     category_display = serializers.CharField(source='get_category_display', read_only=True)
     gallery = AnnouncementImageSerializer(many=True, read_only=True)
     
-    # Champs dynamiques pour la traduction
     title = serializers.SerializerMethodField()
     content = serializers.SerializerMethodField()
 
@@ -33,29 +32,28 @@ class AnnouncementSerializer(serializers.ModelSerializer):
 
     def get_title(self, obj):
         lang = self.context.get('request').query_params.get('language', 'fr') if self.context.get('request') else 'fr'
-        if lang == 'en' and obj.title_en:
-            return obj.title_en
+        if lang == 'en' and obj.title_en: return obj.title_en
         return obj.title_fr or obj.title
 
     def get_content(self, obj):
         lang = self.context.get('request').query_params.get('language', 'fr') if self.context.get('request') else 'fr'
-        if lang == 'en' and obj.content_en:
-            return obj.content_en
+        if lang == 'en' and obj.content_en: return obj.content_en
         return obj.content_fr or obj.content
 
 
 class CommentSerializer(serializers.ModelSerializer):
     is_admin = serializers.SerializerMethodField()
     user_role = serializers.SerializerMethodField()
+    replies_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
         fields = [
-            'id', 'announcement', 'author_name', 'author_email',
-            'content', 'is_approved', 'is_admin', 'user_role',
+            'id', 'announcement', 'parent', 'author_name', 'author_email',
+            'content', 'likes', 'is_approved', 'is_admin', 'user_role', 'replies_count',
             'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'is_approved', 'is_admin', 'user_role', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'likes', 'is_approved', 'is_admin', 'user_role', 'replies_count', 'created_at', 'updated_at']
 
     def get_is_admin(self, obj):
         return obj.user is not None and (obj.user.is_staff or obj.user.is_superuser)
@@ -65,6 +63,9 @@ class CommentSerializer(serializers.ModelSerializer):
         if obj.user.is_superuser: return "Administrateur"
         if obj.user.is_staff: return "Éditeur"
         return ""
+    
+    def get_replies_count(self, obj):
+        return obj.replies.filter(is_approved=True).count()
 
     def create(self, validated_data):
         request = self.context.get('request')

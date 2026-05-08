@@ -133,7 +133,7 @@ export async function fetchComments(announcementId: number): Promise<Comment[] |
 }
 
 /** Poster un commentaire sur un article */
-export async function postComment(data: { announcement: number; author_name: string; author_email?: string; content: string }): Promise<Comment | null> {
+export async function postComment(data: { announcement: number; parent?: number | null; author_name: string; author_email?: string; content: string }): Promise<Comment | null> {
     try {
         const response = await api.post('/api/announcements/comments/', data);
         return response.data;
@@ -253,6 +253,18 @@ export const fetchParoissesPresentation = async (lang?: string): Promise<any | n
     const data = await apiFetch<any>(`/api/pages/paroisses-presentation/current/?language=${language}`);
     return (Array.isArray(data) ? (data as any) : data?.results) ?? null;
 };
+
+/** Liker un commentaire */
+export async function likeComment(commentId: number): Promise<{ likes: number } | null> {
+    try {
+        const response = await api.post(`/api/announcements/comments/${commentId}/like/`);
+        return response.data;
+    } catch (error) {
+        console.warn('[API] Erreur lors du like:', error);
+        return null;
+    }
+}
+
 
 
 
