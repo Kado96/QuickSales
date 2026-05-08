@@ -4,8 +4,10 @@ import Footer from "@/components/Footer";
 import PageHero from "@/components/PageHero";
 import historyImage from "@/assets/history-church.jpg";
 import { useTimeline, useSiteSettings } from "@/hooks/useApi";
+import { useTranslation } from "react-i18next";
 import { Loader2 } from "lucide-react";
 
+const Historique = () => {
   const { t, i18n } = useTranslation();
   // Normaliser la langue (ex: 'fr-FR' devient 'fr') pour correspondre aux clés de l'admin
   const lang = (i18n.language || "fr").split('-')[0].toLowerCase();

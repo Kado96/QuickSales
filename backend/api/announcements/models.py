@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 class Announcement(models.Model):
     PRIORITY_CHOICES = [
@@ -51,3 +52,50 @@ class AnnouncementImage(models.Model):
 
     class Meta:
         ordering = ['order', 'id']
+
+
+class Comment(models.Model):
+    """
+    Commentaire sur un article (Announcement).
+    - Visiteurs anonymes : remplissent author_name + author_email
+    - Administrateurs/Éditeurs connectés : liés via le champ 'user'
+    """
+    announcement = models.ForeignKey(
+        Announcement,
+        related_name='comments',
+        on_delete=models.CASCADE,
+        verbose_name="Article"
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Utilisateur connecté"
+    )
+    author_name = models.CharField(
+        max_length=100,
+        verbose_name="Nom de l'auteur",
+        help_text="Rempli automatiquement si l'utilisateur est connecté"
+    )
+    author_email = models.EmailField(
+        verbose_name="Email de l'auteur",
+        blank=True,
+        default=""
+    )
+    content = models.TextField(verbose_name="Commentaire")
+    is_approved = models.BooleanField(
+        default=True,
+        verbose_name="Approuvé",
+        help_text="Décochez pour masquer ce commentaire"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Commentaire"
+        verbose_name_plural = "Commentaires"
+
+    def __str__(self):
+        return f"{self.author_name} - {self.announcement.title_fr[:30]}..."

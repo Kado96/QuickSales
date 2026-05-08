@@ -17,6 +17,7 @@ import type {
     TimelineEvent,
     TeamMember,
     DiocesePresentation,
+    Comment,
     PaginatedResponse,
 } from './types';
 
@@ -119,6 +120,27 @@ export async function fetchAnnouncements(lang?: string): Promise<Announcement[] 
 /** Récupérer une annonce par ID */
 export async function fetchAnnouncement(id: number): Promise<Announcement | null> {
     return apiFetch<Announcement>(`/api/announcements/${id}/`);
+}
+
+// ==============================================
+// Commentaires
+// ==============================================
+
+/** Récupérer les commentaires d'un article */
+export async function fetchComments(announcementId: number): Promise<Comment[] | null> {
+    const data = await apiFetch<PaginatedResponse<Comment>>(`/api/announcements/comments/?announcement=${announcementId}`);
+    return (Array.isArray(data) ? (data as any) : data?.results) ?? null;
+}
+
+/** Poster un commentaire sur un article */
+export async function postComment(data: { announcement: number; author_name: string; author_email?: string; content: string }): Promise<Comment | null> {
+    try {
+        const response = await api.post('/api/announcements/comments/', data);
+        return response.data;
+    } catch (error) {
+        console.warn('[API] Erreur lors du post de commentaire:', error);
+        return null;
+    }
 }
 
 // ==============================================

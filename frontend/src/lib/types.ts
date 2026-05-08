@@ -276,6 +276,19 @@ export interface TeamMember {
     order: number;
 }
 
+export interface Comment {
+    id: number;
+    announcement: number;
+    author_name: string;
+    author_email: string;
+    content: string;
+    is_approved: boolean;
+    is_admin: boolean;
+    user_role: string;
+    created_at: string;
+    updated_at: string;
+}
+
 /** Réponse paginée de l'API DRF */
 export interface PaginatedResponse<T> {
     count: number;
@@ -283,3 +296,4 @@ export interface PaginatedResponse<T> {
     previous: string | null;
     results: T[];
 }
+
