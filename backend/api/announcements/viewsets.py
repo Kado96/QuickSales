@@ -1,19 +1,22 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
 from .models import Announcement, AnnouncementImage, Comment
 from .serializers import AnnouncementSerializer, CommentSerializer
 
 class AnnouncementViewSet(viewsets.ModelViewSet):
-    queryset = Announcement.objects.filter(is_active=True).prefetch_related('gallery', 'comments')
+    queryset = Announcement.objects.filter(is_active=True).prefetch_related('gallery')
     serializer_class = AnnouncementSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
     filterset_fields = ['category']
 
 class AdminAnnouncementViewSet(viewsets.ModelViewSet):
-    queryset = Announcement.objects.all().prefetch_related('gallery', 'comments')
+    queryset = Announcement.objects.all().prefetch_related('gallery')
     serializer_class = AnnouncementSerializer
     permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
     filterset_fields = ['category', 'is_active']
 
     def perform_create(self, serializer):
@@ -40,27 +43,16 @@ class AdminAnnouncementViewSet(viewsets.ModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    """
-    API pour les commentaires d'articles.
-    - GET /api/announcements/comments/?announcement=<id> : Liste les commentaires approuvés
-    - POST /api/announcements/comments/ : Créer un commentaire (tout le monde)
-    - DELETE /api/announcements/comments/<id>/ : Supprimer (admin uniquement)
-    """
     serializer_class = CommentSerializer
+    filter_backends = [DjangoFilterBackend]
     filterset_fields = ['announcement']
 
     def get_queryset(self):
-        """Seuls les commentaires approuvés sont visibles publiquement"""
         if self.request.user.is_staff:
             return Comment.objects.all().select_related('user')
         return Comment.objects.filter(is_approved=True).select_related('user')
 
     def get_permissions(self):
-        """
-        - Lecture (GET/LIST) : Tout le monde
-        - Création (POST) : Tout le monde
-        - Modification/Suppression : Admin uniquement
-        """
         if self.action in ['list', 'retrieve', 'create']:
             return [permissions.AllowAny()]
         return [permissions.IsAdminUser()]
