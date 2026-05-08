@@ -165,7 +165,7 @@ git push
 ```bash
 cd backend
 venv\Scripts\activate
-python manage.py dumpdata --indent 2 > data.json
+python manage.py dumpdata --indent 2 -o data.json
 ```
 
 ### Importer sur le serveur (PostgreSQL)
