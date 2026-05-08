@@ -13,8 +13,7 @@ import {
     Send,
     Shield,
     ThumbsUp,
-    MoreHorizontal,
-    CornerDownRight
+    MoreHorizontal
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -62,7 +61,6 @@ const ArticleDetail = () => {
             queryClient.invalidateQueries({ queryKey: ['comments', id] });
             setCommentContent('');
             setReplyingTo(null);
-            // Sauvegarder le nom pour la prochaine fois
             localStorage.setItem('comment_author_name', commentName);
             localStorage.setItem('comment_author_email', commentEmail);
         }
@@ -93,7 +91,7 @@ const ArticleDetail = () => {
 
     const handleSubmitComment = (e: React.FormEvent, parentId: number | null = null) => {
         e.preventDefault();
-        const content = parentId ? commentContent : commentContent; // On peut différencier si besoin
+        const content = commentContent;
         if (!content.trim() || !commentName.trim()) return;
         
         commentMutation.mutate({
@@ -102,7 +100,7 @@ const ArticleDetail = () => {
             author_email: commentEmail,
             content: content,
             parent: parentId
-        } as any);
+        });
     };
 
     // ─── RENDU COMPOSANT COMMENTAIRE ───
@@ -135,20 +133,20 @@ const ArticleDetail = () => {
                         className={`hover:underline transition-colors flex items-center gap-1 ${likedComments.includes(comment.id) ? 'text-indigo-600' : ''}`}
                     >
                         {likedComments.includes(comment.id) && <ThumbsUp className="h-3 w-3 fill-current" />}
-                        J'aime {comment.likes > 0 && <span>({comment.likes})</span>}
+                        {t('like', 'J\'aime')} {comment.likes > 0 && <span>({comment.likes})</span>}
                     </button>
                     <button 
                         onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
                         className={`hover:underline ${replyingTo === comment.id ? 'text-indigo-600' : ''}`}
                     >
-                        Répondre
+                        {t('reply', 'Répondre')}
                     </button>
                     <span className="font-normal text-slate-400">
-                        {new Date(comment.created_at).toLocaleDateString(lang, { day: 'numeric', month: 'short' })}
+                        {new Date(comment.created_at).toLocaleDateString(i18n.language, { day: 'numeric', month: 'short' })}
                     </span>
                 </div>
 
-                {/* Formulaire de réponse (si actif) */}
+                {/* Formulaire de réponse */}
                 <AnimatePresence>
                     {replyingTo === comment.id && (
                         <motion.div 
@@ -161,7 +159,7 @@ const ArticleDetail = () => {
                                 <div className="flex-1 relative">
                                     <textarea 
                                         autoFocus
-                                        placeholder={`Répondre à ${comment.author_name}...`}
+                                        placeholder={`${t('reply_to', 'Répondre à')} ${comment.author_name}...`}
                                         required
                                         rows={1}
                                         value={commentContent}
@@ -181,8 +179,8 @@ const ArticleDetail = () => {
                     )}
                 </AnimatePresence>
 
-                {/* Affichage des réponses imbriquées */}
-                {comments.filter(c => (c as any).parent === comment.id).map(reply => (
+                {/* Affichage des réponses */}
+                {comments.filter(c => c.parent === comment.id).map(reply => (
                     <CommentItem key={reply.id} comment={reply} isReply={true} />
                 ))}
             </div>
@@ -192,15 +190,13 @@ const ArticleDetail = () => {
     if (isLoading) return <div className="min-h-screen bg-slate-50 flex items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-indigo-600" /></div>;
     if (!article) return null;
 
-    // On ne garde que les commentaires "racines" (ceux qui n'ont pas de parent) pour le premier niveau
-    const rootComments = comments.filter(c => !(c as any).parent);
+    const rootComments = comments.filter(c => !c.parent);
 
     return (
         <div className="min-h-screen bg-white md:bg-slate-50">
             <Header />
             <motion.div className="fixed top-0 left-0 right-0 h-1 bg-indigo-600 origin-left z-[100]" style={{ scaleX }} />
 
-            {/* Hero & Content (Simplifié pour la lisibilité de la réponse) */}
             <div className="relative h-[40vh] w-full">
                 {article.image_display && <img src={article.image_display} className="w-full h-full object-cover" />}
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center p-6 text-center">
@@ -212,35 +208,34 @@ const ArticleDetail = () => {
                 <div className="bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-slate-100 mb-8">
                     <div className="prose prose-slate max-w-none mb-10" dangerouslySetInnerHTML={{ __html: article[`content_${lang}`] || article.content }} />
                     <div className="flex gap-4 border-t pt-6">
-                        <Button variant="ghost" onClick={scrollToComments} className="gap-2 text-slate-500"><MessageCircle className="h-5 w-5" /> Commenter</Button>
-                        <Button variant="ghost" className="gap-2 text-slate-500"><Share2 className="h-5 w-5" /> Partager</Button>
+                        <Button variant="ghost" onClick={scrollToComments} className="gap-2 text-slate-500"><MessageCircle className="h-5 w-5" /> {t('comment', 'Commenter')}</Button>
+                        <Button variant="ghost" className="gap-2 text-slate-500"><Share2 className="h-5 w-5" /> {t('share', 'Partager')}</Button>
                     </div>
                 </div>
 
-                {/* 🟦 SECTION COMMENTAIRES FACEBOOK STYLE AVANCÉE */}
+                {/* SECTION COMMENTAIRES TRADUITE */}
                 <div ref={commentsRef} className="bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-slate-100">
                     <h3 className="text-lg font-bold text-slate-900 mb-8 flex items-center gap-2">
                         <MessageCircle className="h-5 w-5 text-indigo-600" />
-                        Commentaires ({comments.length})
+                        {t('comments_count', 'Commentaires')} ({comments.length})
                     </h3>
 
-                    {/* Formulaire Principal */}
                     <form onSubmit={(e) => handleSubmitComment(e)} className="flex gap-3 mb-12">
                         <div className="w-10 h-10 rounded-full bg-slate-200 shrink-0 flex items-center justify-center font-bold text-slate-400">?</div>
                         <div className="flex-1 space-y-3">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <input 
-                                    placeholder="Votre nom" required value={commentName} onChange={e => setCommentName(e.target.value)}
+                                    placeholder={t('your_name', 'Votre nom')} required value={commentName} onChange={e => setCommentName(e.target.value)}
                                     className="bg-slate-100 border-none rounded-full px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500/20"
                                 />
                                 <input 
-                                    placeholder="Email (optionnel)" value={commentEmail} onChange={e => setCommentEmail(e.target.value)}
+                                    placeholder={`${t('your_email', 'Email')} (${t('optional', 'optionnel')})`} value={commentEmail} onChange={e => setCommentEmail(e.target.value)}
                                     className="bg-slate-100 border-none rounded-full px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500/20"
                                 />
                             </div>
                             <div className="relative">
                                 <textarea 
-                                    placeholder="Qu'en pensez-vous ?" required rows={3} value={commentContent} onChange={e => setCommentContent(e.target.value)}
+                                    placeholder={t('comment_input_placeholder', 'Qu\'en pensez-vous ?')} required rows={3} value={commentContent} onChange={e => setCommentContent(e.target.value)}
                                     className="w-full bg-slate-100 border-none rounded-2xl px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-indigo-500/20"
                                 />
                                 <button type="submit" disabled={commentMutation.isPending || !commentContent.trim()} className="absolute right-3 bottom-3 bg-indigo-600 text-white p-2 rounded-full shadow-lg shadow-indigo-600/20 disabled:bg-slate-300">
@@ -250,12 +245,11 @@ const ArticleDetail = () => {
                         </div>
                     </form>
 
-                    {/* Liste des Commentaires avec récursion */}
                     <div className="space-y-2">
                         {loadingComments ? (
                             <div className="flex justify-center py-10"><Loader2 className="h-8 w-8 animate-spin text-slate-200" /></div>
                         ) : rootComments.length === 0 ? (
-                            <div className="text-center py-10 text-slate-400 italic">Soyez le premier à réagir à cet article.</div>
+                            <div className="text-center py-10 text-slate-400 italic">{t('be_first', 'Soyez le premier à réagir à cet article.')}</div>
                         ) : (
                             rootComments.map(comment => <CommentItem key={comment.id} comment={comment} />)
                         )}
