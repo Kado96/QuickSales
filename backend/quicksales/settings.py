@@ -238,11 +238,19 @@ if not DEBUG:
     CORS_ALLOWED_ORIGINS = [
         "https://quicksales.onrender.com",
         "http://quicksales.onrender.com",
+        "https://quicksales.wuaze.com",
+        "http://quicksales.wuaze.com",
+        "https://quicksales-ywr7.onrender.com",
+        "http://quicksales-ywr7.onrender.com",
     ]
     # Domaines de confiance pour les requêtes CSRF
     CSRF_TRUSTED_ORIGINS = [
         "https://quicksales.onrender.com",
         "http://quicksales.onrender.com",
+        "https://quicksales.wuaze.com",
+        "http://quicksales.wuaze.com",
+        "https://quicksales-ywr7.onrender.com",
+        "http://quicksales-ywr7.onrender.com",
     ]
 else:
     # En développement, autoriser tout pour faciliter la connexion
