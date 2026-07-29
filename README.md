@@ -11,7 +11,6 @@ Application complète pour la gestion et la communication du **Diocèse de Makam
 ---
 
 ## 🛠️ Workflow de Développement : Local vers Production
-
 Le projet est configuré pour séparer strictement le développement (local) de la production (Supabase).
 
 ### Étape 1 : Développement Local (SQLite)
