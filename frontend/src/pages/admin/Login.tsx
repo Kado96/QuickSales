@@ -44,7 +44,7 @@ const Login = () => {
                 description: `${t('admin_welcome', "Bienvenue")}, ${username} !`,
             });
 
-            navigate("/admin");
+            navigate("/admin", { replace: true });
         } catch (error: any) {
             let errorMessage = t('admin_login_error_desc', "Identifiants invalides.");
 

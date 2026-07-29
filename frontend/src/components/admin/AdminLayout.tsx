@@ -104,7 +104,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token) {
-            navigate("/admin/login");
+            navigate("/admin/login", { replace: true });
         }
     }, [navigate]);
 
