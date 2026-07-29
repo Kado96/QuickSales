@@ -104,6 +104,7 @@ urlpatterns = [
     path('api/ministries/', include('api.ministries.urls')),
     path('api/pages/', include('api.pages.urls')),
     path('api/testimonials/', include("api.testimonials.urls")),
+    path('api/messages/', include('api.messages.urls')),
     path('api-auth/', include('rest_framework.urls')),
     path('api/login/', CustomTokenObtainPairView.as_view(), name="api-login"),
     path('api/register/', RegisterViewSet.as_view(), name="api-register"),

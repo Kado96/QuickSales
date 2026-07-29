@@ -263,6 +263,31 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at',
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
+        extra_kwargs = {
+            # Allow URL fields to be empty strings (blank=True in model, but DRF URLField
+            # rejects "" by default → causes 400 when admin form submits empty URL inputs)
+            'logo_url':       {'allow_blank': True, 'required': False},
+            'facebook_url':   {'allow_blank': True, 'required': False},
+            'youtube_url':    {'allow_blank': True, 'required': False},
+            'instagram_url':  {'allow_blank': True, 'required': False},
+            'twitter_url':    {'allow_blank': True, 'required': False},
+            'whatsapp_url':   {'allow_blank': True, 'required': False},
+            # Make all image fields optional on PATCH
+            'logo':                 {'required': False},
+            'hero_image':           {'required': False},
+            'about_image':          {'required': False},
+            'team_image':           {'required': False},
+            'quote_author_image':   {'required': False},
+            'vision_bg_image':      {'required': False},
+            'engage_bg_image':      {'required': False},
+            'stories_bg_image':     {'required': False},
+            'parishes_bg_image':    {'required': False},
+            'history_image':        {'required': False},
+            'bishop_photo':         {'required': False},
+            'vision_image':         {'required': False},
+            'mission_image':        {'required': False},
+            'values_image':         {'required': False},
+        }
 
     def _get_lang(self):
         request = self.context.get('request')

@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     "api.ministries",
     "api.pages",
     "api.sermons",
+    "api.messages",
 ]
 
 # ==========================
