@@ -113,6 +113,7 @@ const IdentityTabContent = React.memo(({ settings }: IdentityTabContentProps) =>
                         <Input
                             id="logo_url"
                             name="logo_url"
+                            type="text"
                             defaultValue={settings?.logo_url}
                             placeholder="https://..."
                             className="rounded-xl border-slate-200 h-11 focus:bg-white"
