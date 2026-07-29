@@ -253,9 +253,47 @@ class SiteSettingsViewSet(viewsets.ModelViewSet):
         """Mettre à jour l'instance unique"""
         settings = SiteSettings.get_settings()
         
+        # Champs en lecture seule (SerializerMethodField) que le frontend peut renvoyer mais
+        # que le serializer ne sait pas écrire → les supprimer avant la validation
+        READ_ONLY_FIELDS = {
+            # Affichage d'images (URLs calculées)
+            'logo_url_display', 'hero_image_display', 'about_image_display',
+            'team_image_display', 'quote_author_image_display', 'vision_bg_image_display',
+            'engage_bg_image_display', 'stories_bg_image_display', 'parishes_bg_image_display',
+            'history_image_display', 'bishop_photo_display', 'vision_image_display',
+            'mission_image_display', 'values_image_display',
+            # Champs localisés calculés (aliases sans suffixe _fr/_en)
+            'hero_title', 'hero_subtitle', 'hero_badge', 'hero_btn1_text', 'hero_btn1_link',
+            'hero_btn2_text', 'hero_btn2_link', 'about_title', 'about_title_accent',
+            'about_badge', 'about_content', 'bible_verse', 'bible_verse_ref',
+            'quote_text', 'quote_author_name', 'quote_author_subtitle',
+            'diocese_subtitle', 'history_subtitle', 'vision_subtitle',
+            'footer_description', 'footer_copyright',
+            'stat_years_label', 'stat_years_desc', 'stat_emissions', 'stat_emissions_desc',
+            'stat_audience', 'stat_audience_desc', 'stat_languages', 'stat_languages_desc',
+            'stats_cta_title', 'stats_cta_link_text',
+            'history_intro_title', 'history_intro_text', 'vision_text', 'mission_intro',
+            'bishop_bio_p1', 'bishop_bio_p2',
+            'vision_title', 'vision_description', 'vision_pillar1_title', 'vision_pillar1_desc',
+            'vision_pillar2_title', 'vision_pillar2_desc', 'vision_pillar3_title', 'vision_pillar3_desc',
+            'engage_title', 'engage_description', 'engage_item1_title', 'engage_item1_desc',
+            'engage_item1_cta', 'engage_item2_title', 'engage_item2_desc', 'engage_item2_cta',
+            'engage_item3_title', 'engage_item3_desc', 'engage_item3_cta',
+            'stories_badge', 'stories_title', 'info_message_text', 'info_badge_text',
+            'organization_title', 'organization_subtitle', 'organization_text',
+            'history_title', 'history_text', 'bishop_title', 'bishop_message',
+            'vision_badge', 'mission_badge', 'mission_title', 'mission_description',
+            'values_badge', 'values_title', 'values_description', 'team_badge',
+            'nav_history', 'nav_bishop', 'nav_vision', 'nav_team',
+            # Bouton submit envoyé par le formulaire HTML
+            'save_settings',
+        }
+        
         # Construire un dict mutable SANS deepcopy (qui plante avec les fichiers uploadés)
         mutable_data = {}
         for key in request.data:
+            if key in READ_ONLY_FIELDS:
+                continue  # Ignorer les champs en lecture seule
             # Pour les fichiers, prendre directement l'objet fichier
             if key in request.FILES:
                 mutable_data[key] = request.FILES[key]
@@ -268,6 +306,9 @@ class SiteSettingsViewSet(viewsets.ModelViewSet):
             settings.save()
             # Retrait du champ pour éviter que le serializer n'essaie de le traiter
             mutable_data.pop('logo', None)
+        
+        # Nettoyer le champ clear_logo (non géré par le sérialiseur)
+        mutable_data.pop('clear_logo', None)
                 
         serializer = self.get_serializer(settings, data=mutable_data, partial=kwargs.get('partial', False), context={'request': request})
         serializer.is_valid(raise_exception=True)

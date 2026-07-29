@@ -19,8 +19,8 @@ from api.test_cors import test_cors  # Test CORS
 from .handlers import handler400, handler403, handler404, handler500
 from .views import MakambaDioceseView, RootView, ImageProxyView
 
-admin.site.site_header = 'ANGLICANE MAKAMBA ADMINISTRATION'
-admin.site.index_title = 'Anglicane Makamba Admin'
+admin.site.site_header = 'QUICKSALES ADMINISTRATION'
+admin.site.index_title = 'QuickSales Admin'
 admin.site.site_title = 'Administration'
 
 
@@ -126,8 +126,8 @@ urlpatterns = [
 ]
 
 # Configuration des handlers d'erreur personnalisés
-handler400 = 'makamba.handlers.handler400'
-handler403 = 'makamba.handlers.handler403'
-handler404 = 'makamba.handlers.handler404'
-handler500 = 'makamba.handlers.handler500'
+handler400 = 'quicksales.handlers.handler400'
+handler403 = 'quicksales.handlers.handler403'
+handler404 = 'quicksales.handlers.handler404'
+handler500 = 'quicksales.handlers.handler500'
 

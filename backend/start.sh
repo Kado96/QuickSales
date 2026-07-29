@@ -79,5 +79,5 @@ python manage.py create_superuser || {
 
 # Démarrer le serveur (gunicorn)
 echo "🚀 Starting server..."
-echo "Gunicorn command: gunicorn makamba.wsgi:application --bind 0.0.0.0:$PORT"
-exec gunicorn makamba.wsgi:application --bind 0.0.0.0:$PORT
+echo "Gunicorn command: gunicorn quicksales.wsgi:application --bind 0.0.0.0:$PORT"
+exec gunicorn quicksales.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120

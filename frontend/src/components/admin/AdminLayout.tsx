@@ -90,10 +90,10 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     useEffect(() => {
         const fetchUnread = async () => {
             try {
-                const res = await api.get('/api/pages/messages/unread_count/');
-                setUnreadMessages(res.data.unread_count);
-            } catch (e) {
-                console.error(e);
+                const res = await api.get('/api/messages/unread_count/');
+                setUnreadMessages(res.data.unread_count ?? 0);
+            } catch {
+                // Silently ignore — user may not be authenticated yet
             }
         };
         fetchUnread();
@@ -217,6 +217,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                 <header className="h-20 bg-white border-b border-slate-200 sticky top-0 z-30 px-4 md:px-8 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <Button
+                            type="button"
                             variant="ghost"
                             size="icon"
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -227,14 +228,14 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
 
                         <div className="hidden md:flex items-center gap-4">
                             <a href="/" target="_blank" rel="noopener noreferrer">
-                                <Button variant="ghost" size="sm" className="font-body font-medium text-slate-600 gap-2">
+                                <Button type="button" variant="ghost" size="sm" className="font-body font-medium text-slate-600 gap-2">
                                     <LayoutDashboard className="h-4 w-4" /> {t("admin_view_site")}
                                 </Button>
                             </a>
 
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="sm" className="font-body font-medium text-slate-600 gap-2">
+                                    <Button type="button" variant="ghost" size="sm" className="font-body font-medium text-slate-600 gap-2">
                                         <Plus className="h-4 w-4" /> {t("admin_new")}
                                     </Button>
                                 </DropdownMenuTrigger>
@@ -253,7 +254,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                         {/* Language Switcher in Admin Header */}
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm" className="flex items-center gap-2 px-3 hover:bg-slate-100 rounded-xl transition-colors">
+                                <Button type="button" variant="ghost" size="sm" className="flex items-center gap-2 px-3 hover:bg-slate-100 rounded-xl transition-colors">
                                     <Globe className="h-4 w-4 text-indigo-500" />
                                     <span className="font-bold text-xs uppercase text-slate-600">{i18n.language}</span>
                                     <ChevronDown className="h-3 w-3 text-slate-400" />
@@ -281,7 +282,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                             />
                         </div>
 
-                        <Button variant="ghost" size="icon" className="relative text-slate-500 hover:bg-slate-100 rounded-full">
+                        <Button type="button" variant="ghost" size="icon" className="relative text-slate-500 hover:bg-slate-100 rounded-full">
                             <Bell className="h-5 w-5" />
                             <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
                         </Button>

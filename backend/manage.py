@@ -36,14 +36,14 @@ if os.getenv('DEBUG', '').lower() == 'true' or 'render' in os.getcwd().lower():
     print(f"   - sys.path (premiers 3): {list(sys.path)[:3]}")
     # Tester l'import
     try:
-        import api.settings
-        print(f"   [OK] api.settings importable")
+        import quicksales.settings
+        print(f"   [OK] quicksales.settings importable")
     except ImportError as e:
-        print(f"   [ERROR] api.settings non importable: {e}")
+        print(f"   [ERROR] quicksales.settings non importable: {e}")
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'makamba.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'quicksales.settings')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

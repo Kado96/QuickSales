@@ -49,10 +49,9 @@ else:
     ALLOWED_HOSTS = [
         "localhost",
         "127.0.0.1",
-        "10.10.107.8",
-        "makamba-diocese-connect.onrender.com",
-        "anglicanemakamba.kesug.com",
-        "www.anglicanemakamba.kesug.com",
+        "0.0.0.0",
+        "quicksales.onrender.com",
+        "*.onrender.com",
     ]
 
 # ==========================
@@ -98,9 +97,9 @@ MIDDLEWARE = [
     "api.middlewares.DisableCSRF",
 ]
 
-ROOT_URLCONF = "makamba.urls"
+ROOT_URLCONF = "quicksales.urls"
 
-WSGI_APPLICATION = "makamba.wsgi.application"
+WSGI_APPLICATION = "quicksales.wsgi.application"
 
 # ==========================
 # DATABASE
@@ -237,19 +236,13 @@ from corsheaders.defaults import default_headers
 # Autoriser les origines en production
 if not DEBUG:
     CORS_ALLOWED_ORIGINS = [
-        "https://anglicanemakamba.kesug.com",
-        "http://anglicanemakamba.kesug.com",
-        "https://www.anglicanemakamba.kesug.com",
-        "http://www.anglicanemakamba.kesug.com",
-        "https://makamba-diocese-connect.onrender.com",
+        "https://quicksales.onrender.com",
+        "http://quicksales.onrender.com",
     ]
-    # Domaines de confiance pour les requêtes CSRF (formulaires, API PATCH/POST)
+    # Domaines de confiance pour les requêtes CSRF
     CSRF_TRUSTED_ORIGINS = [
-        "https://anglicanemakamba.kesug.com",
-        "http://anglicanemakamba.kesug.com",
-        "https://www.anglicanemakamba.kesug.com",
-        "http://www.anglicanemakamba.kesug.com",
-        "https://makamba-diocese-connect.onrender.com",
+        "https://quicksales.onrender.com",
+        "http://quicksales.onrender.com",
     ]
 else:
     # En développement, autoriser tout pour faciliter la connexion

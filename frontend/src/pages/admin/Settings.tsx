@@ -118,9 +118,14 @@ const AdminSettings = () => {
         );
     }
 
+    // ⚠️  IMPORTANT: AdminLayout contains <input name="search"> and <button> elements in the header.
+    // Wrapping AdminLayout itself inside a <form> causes React Fiber DOM corruption (insertBefore crash)
+    // because those elements become form children and conflict with conditional renders (Loader2/Save icon swap).
+    // Fix: AdminLayout is the outer wrapper; the <form> only wraps the page content.
+
     return (
         <AdminLayout>
-            <form onSubmit={handleSubmit} className="max-w-5xl mx-auto space-y-8 animate-fade-up">
+            <form onSubmit={handleSubmit} className="max-w-5xl mx-auto space-y-8 animate-fade-up" encType="multipart/form-data">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-heading font-bold text-slate-900 flex items-center gap-3">
@@ -152,7 +157,7 @@ const AdminSettings = () => {
                             </CardHeader>
                             <CardContent className="p-8">
                                 <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-                                    <TabsList className="bg-slate-100 p-1 rounded-xl mb-6 flex flex-wrap h-auto">
+                                    <TabsList className="bg-slate-100 p-1 rounded-xl mb-3 flex flex-wrap h-auto">
                                         <TabsTrigger value="fr" className="rounded-lg font-bold">🇫🇷 {t('lang_fr', 'Français')}</TabsTrigger>
                                         <TabsTrigger value="en" className="rounded-lg font-bold">🇬🇧 {t('lang_en', 'English')}</TabsTrigger>
                                         <TabsTrigger value="identity" className="rounded-lg font-bold">
@@ -167,10 +172,13 @@ const AdminSettings = () => {
                                         <TabsTrigger value="contact" className="rounded-lg font-bold bg-emerald-50 text-emerald-700 data-[state=active]:bg-emerald-600 data-[state=active]:text-white gap-2 py-2 px-4 shadow-sm border border-emerald-100">
                                             <Globe className="h-4 w-4" /> {t('admin_tab_contact', "Contact & Réseaux")}
                                         </TabsTrigger>
-                                        <Link to="/admin/users" className="rounded-lg font-bold bg-teal-50 text-teal-700 hover:bg-teal-100 gap-2 py-2 px-4 shadow-sm border border-teal-100 flex items-center transition-colors">
+                                    </TabsList>
+                                    {/* Link must be OUTSIDE TabsList — anchor inside Radix TabsList causes React DOM crash */}
+                                    <div className="mb-4">
+                                        <Link to="/admin/users" className="inline-flex items-center gap-2 rounded-lg font-bold bg-teal-50 text-teal-700 hover:bg-teal-100 py-2 px-4 shadow-sm border border-teal-100 transition-colors text-sm">
                                             <Users className="h-4 w-4" /> {t('admin_users_management', "Utilisateurs")}
                                         </Link>
-                                    </TabsList>
+                                    </div>
 
                                     {["fr", "en"].map((lang) => (
                                         <TabsContent key={lang} value={lang} className="mt-0">
