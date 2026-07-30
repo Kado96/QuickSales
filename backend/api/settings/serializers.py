@@ -488,8 +488,10 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
         if not image_field or not hasattr(image_field, 'url'):
             return None
         try:
-            # Retourner le chemin relatif (/api/media/...) 
-            # Cela fonctionne en dev (proxy Vite) et en prod (même domaine)
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(image_field.url)
+            # Fallback si pas de requête dans le contexte
             return image_field.url
         except Exception:
             return None
