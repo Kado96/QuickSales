@@ -208,6 +208,27 @@ const AdminSettings = () => {
                     </div>
 
                     <div className="hidden lg:block space-y-6">
+                        {/* Logo Preview Card on the right */}
+                        <Card className="rounded-[2rem] border-slate-200/60 shadow-xl shadow-slate-200/40 p-8 bg-white flex flex-col items-center justify-center text-center">
+                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">
+                                {t("admin_site_logo_preview", "LOGO DU SITE")}
+                            </h3>
+                            <div className="w-40 h-40 rounded-[2rem] border border-slate-100 bg-slate-50 flex items-center justify-center overflow-hidden p-4 shadow-inner">
+                                {settings?.logo_url_display ? (
+                                    <img
+                                        src={settings.logo_url_display}
+                                        alt={settings.site_name}
+                                        className="w-full h-full object-contain"
+                                    />
+                                ) : (
+                                    <span className="text-xs font-bold text-slate-300">Aucun logo</span>
+                                )}
+                            </div>
+                            <span className="text-xs font-medium text-slate-400 mt-6">
+                                {t("admin_logo_hint_aspect", "Format carré conseillé")}
+                            </span>
+                        </Card>
+
                         <Card className="rounded-[2rem] border-blue-100 bg-blue-50/30 p-8 shadow-sm">
                             <h3 className="font-heading font-bold text-blue-900 mb-2">{t("admin_tip_title")}</h3>
                             <p className="text-sm text-blue-700/80 leading-relaxed">
