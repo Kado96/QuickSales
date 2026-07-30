@@ -38,6 +38,7 @@ const AdminUsers = lazy(() => import("./pages/admin/Users"));
 const AdminAddUser = lazy(() => import("./pages/admin/AddUser"));
 const AdminDocumentation = lazy(() => import("./pages/admin/Documentation"));
 const AdminMessages = lazy(() => import("./pages/admin/Messages"));
+const AdminMediaManager = lazy(() => import("./pages/admin/MediaManager"));
 
 const queryClient = new QueryClient();
 
@@ -144,6 +145,7 @@ const AppContent = () => {
           <Route path="/admin/settings" element={<AdminSettings />} />
           <Route path="/admin/documentation" element={<AdminDocumentation />} />
           <Route path="/admin/messages" element={<AdminMessages />} />
+          <Route path="/admin/media" element={<AdminMediaManager />} />
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

@@ -27,7 +27,8 @@ import {
     BookOpen,
     Globe,
     UserCog,
-    Home
+    Home,
+    Image
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -57,9 +58,10 @@ const sidebarItems = [
     { icon: Megaphone, labelKey: "admin_news", href: "/admin/announcements", color: "text-orange-500", adminOnly: false },
     { icon: Quote, labelKey: "admin_testimonials", href: "/admin/testimonials", color: "text-amber-500", adminOnly: true },
     { icon: UserCog, labelKey: "admin_users_management", href: "/admin/users", color: "text-teal-500", adminOnly: true },
+    { icon: Image, labelKey: "admin_media_library", href: "/admin/media", color: "text-rose-400", adminOnly: true },
     { icon: Settings, labelKey: "admin_settings", href: "/admin/settings", color: "text-slate-400", adminOnly: true },
     { icon: FileText, labelKey: "admin_manual", href: "/admin/documentation", color: "text-indigo-500", adminOnly: false },
-];
+]
 
 const AdminLayout = ({ children }: AdminLayoutProps) => {
     const { t, i18n } = useTranslation();
